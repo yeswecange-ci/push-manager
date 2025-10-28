@@ -8,159 +8,288 @@ use Illuminate\Support\Facades\DB;
 
 class ContactController extends Controller
 {
+    /**
+     * Display a listing of the contacts.
+     */
     public function index(Request $request)
     {
         $query = MessageWhatsapp::query();
 
-        if ($request->filled('campagne')) {
+        // Filtrage par campagne
+        if ($request->has('campagne') && $request->campagne != '') {
             $query->where('nom_campagne', $request->campagne);
         }
 
-        if ($request->filled('search')) {
-            $query->where('numero_telephone', 'like', '%' . $request->search . '%');
-        }
-
+        // Récupérer les messages avec pagination
         $messages = $query->orderBy('created_at', 'desc')->paginate(20);
-        $total = MessageWhatsapp::count();
-        $campagnes = MessageWhatsapp::distinct()->pluck('nom_campagne');
 
-        return view('contacts.index', compact(
-            'messages',
-            'total',
-            'campagnes'
-        ));
-    }
+        // Récupérer la liste des campagnes distinctes pour le filtre
+        $campagnes = MessageWhatsapp::distinct()
+            ->whereNotNull('nom_campagne')
+            ->where('nom_campagne', '!=', '')
+            ->pluck('nom_campagne')
+            ->sort()
+            ->values();
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'numero_telephone' => 'required|string|max:20',
-            'nom_campagne' => 'required|string|max:255',
-            'date_envoi' => 'nullable|date',
-            'id_twilio' => 'nullable|string|max:255'
-        ]);
-
-        // Formater le numéro de téléphone avec l'indicatif +225 si absent
-        $validated['numero_telephone'] = $this->formatPhoneNumber($validated['numero_telephone']);
-
-        MessageWhatsapp::create($validated);
-
-        return redirect()->route('contacts.index')->with('success', 'Contact ajouté avec succès!');
-    }
-
-    public function import(Request $request)
-    {
-        $request->validate([
-            'csv_file' => 'required|file|mimes:csv,txt|max:10240'
-        ]);
-
-        $file = $request->file('csv_file');
-        $csvData = array_map('str_getcsv', file($file));
-        $headers = array_shift($csvData);
-
-        $imported = 0;
-        $errors = [];
-
-        foreach ($csvData as $index => $row) {
-            if (count($row) >= 2) {
-                try {
-                    // Formater le numéro de téléphone avec l'indicatif +225 si absent
-                    $numeroTelephone = $this->formatPhoneNumber(trim($row[0]));
-
-                    MessageWhatsapp::create([
-                        'numero_telephone' => $numeroTelephone,
-                        'nom_campagne' => trim($row[1]),
-                    ]);
-                    $imported++;
-                } catch (\Exception $e) {
-                    $errors[] = "Ligne " . ($index + 2) . ": " . $e->getMessage();
-                }
-            }
-        }
-
-        $message = "$imported contacts importés avec succès!";
-        if (count($errors) > 0) {
-            $message .= " (" . count($errors) . " erreurs)";
-        }
-
-        return redirect()->route('contacts.index')->with('success', $message);
-    }
-
-    public function destroy($id)
-    {
-        $message = MessageWhatsapp::findOrFail($id);
-        $message->delete();
-
-        return redirect()->route('contacts.index')->with('success', 'Contact supprimé avec succès!');
-    }
-
-    public function deleteCampaign(Request $request)
-    {
-        $validated = $request->validate([
-            'campagne' => 'required|string'
-        ]);
-
-        $count = MessageWhatsapp::where('nom_campagne', $validated['campagne'])->count();
-        MessageWhatsapp::where('nom_campagne', $validated['campagne'])->delete();
-
-        return redirect()->route('contacts.index')->with('success', "Campagne supprimée : {$count} contacts supprimés!");
-    }
-
-    public function search(Request $request)
-    {
-        $query = $request->get('q');
-
-        if (strlen($query) < 2) {
-            return response()->json([]);
-        }
-
-        $results = MessageWhatsapp::where('numero_telephone', 'like', "%{$query}%")
-            ->orWhere('nom_campagne', 'like', "%{$query}%")
-            ->limit(10)
-            ->get()
-            ->map(function($contact) {
-                return [
-                    'value' => $contact->numero_telephone . ' - ' . $contact->nom_campagne,
-                    'numero' => $contact->numero_telephone,
-                    'campagne' => $contact->nom_campagne,
-                    'id' => $contact->id
-                ];
-            });
-
-        return response()->json($results);
+        return view('contacts.index', compact('messages', 'campagnes'));
     }
 
     /**
-     * Formate le numéro de téléphone en ajoutant l'indicatif +225 si absent
-     *
-     * @param string $phoneNumber
-     * @return string
+     * Store a newly created contact in storage.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'numero_telephone' => 'required|string',
+            'nom_campagne' => 'required|string',
+        ]);
+
+        // Formater le numéro de téléphone CORRECTEMENT
+        $phoneNumber = $this->formatPhoneNumber($validated['numero_telephone']);
+
+        // Vérifier que le format est valide
+        if (!$this->isValidPhoneNumber($phoneNumber)) {
+            return redirect()->route('contacts.index')
+                ->with('error', 'Numéro de téléphone invalide. Format attendu: 07 01 23 45 67 ou +225 07 01 23 45 67');
+        }
+
+        // Vérifier si le numéro existe déjà dans cette campagne
+        $existingContact = MessageWhatsapp::where('numero_telephone', $phoneNumber)
+            ->where('nom_campagne', $validated['nom_campagne'])
+            ->first();
+
+        if ($existingContact) {
+            return redirect()->route('contacts.index')
+                ->with('error', 'Ce numéro existe déjà dans cette campagne.');
+        }
+
+        try {
+            // Créer le contact avec le numéro formaté
+            MessageWhatsapp::create([
+                'numero_telephone' => $phoneNumber,
+                'nom_campagne' => $validated['nom_campagne'],
+            ]);
+
+            return redirect()->route('contacts.index')
+                ->with('success', 'Contact ajouté avec succès');
+
+        } catch (\Exception $e) {
+            return redirect()->route('contacts.index')
+                ->with('error', 'Erreur lors de l\'ajout du contact: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Import contacts from CSV file.
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt'
+        ]);
+
+        try {
+            $file = $request->file('csv_file');
+            $csvData = array_map('str_getcsv', file($file));
+
+            $imported = 0;
+            $errors = [];
+
+            // Supprimer l'en-tête si présent
+            if (count($csvData) > 0) {
+                $header = $csvData[0];
+                $hasHeader = false;
+
+                // Vérifier si la première ligne contient des en-têtes
+                foreach ($header as $cell) {
+                    if (str_contains(strtolower($cell), 'numero') || str_contains(strtolower($cell), 'campagne')) {
+                        $hasHeader = true;
+                        break;
+                    }
+                }
+
+                if ($hasHeader) {
+                    array_shift($csvData); // Supprimer l'en-tête
+                }
+            }
+
+            foreach ($csvData as $index => $row) {
+                if (count($row) >= 2) {
+                    $numero = trim($row[0]);
+                    $campagne = trim($row[1]);
+
+                    // Ignorer les lignes vides
+                    if (empty($numero) || empty($campagne)) {
+                        continue;
+                    }
+
+                    // Formater le numéro
+                    $formattedNumero = $this->formatPhoneNumber($numero);
+
+                    if ($this->isValidPhoneNumber($formattedNumero) && !empty($campagne)) {
+                        // Vérifier si le contact existe déjà
+                        $exists = MessageWhatsapp::where('numero_telephone', $formattedNumero)
+                            ->where('nom_campagne', $campagne)
+                            ->exists();
+
+                        if (!$exists) {
+                            MessageWhatsapp::create([
+                                'numero_telephone' => $formattedNumero,
+                                'nom_campagne' => $campagne,
+                            ]);
+                            $imported++;
+                        } else {
+                            $errors[] = "Ligne " . ($index + 1) . ": Le contact $numero existe déjà dans la campagne $campagne";
+                        }
+                    } else {
+                        $errors[] = "Ligne " . ($index + 1) . ": Format invalide - $numero -> $campagne";
+                    }
+                } else {
+                    $errors[] = "Ligne " . ($index + 1) . ": Format de ligne invalide";
+                }
+            }
+
+            $message = "$imported contacts importés avec succès.";
+            if (!empty($errors)) {
+                if (count($errors) > 10) {
+                    $message .= " " . count($errors) . " erreurs (affichage limité aux 10 premières).";
+                    $errors = array_slice($errors, 0, 10);
+                } else {
+                    $message .= " " . count($errors) . " erreurs.";
+                }
+
+                // Stocker les erreurs détaillées en session
+                session(['import_errors' => $errors]);
+            }
+
+            return redirect()->route('contacts.index')->with('success', $message);
+
+        } catch (\Exception $e) {
+            return redirect()->route('contacts.index')
+                ->with('error', 'Erreur lors de l\'import: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Remove the specified contact from storage.
+     */
+    public function destroy($id)
+    {
+        try {
+            $contact = MessageWhatsapp::findOrFail($id);
+            $contact->delete();
+
+            return redirect()->route('contacts.index')
+                ->with('success', 'Contact supprimé avec succès');
+
+        } catch (\Exception $e) {
+            return redirect()->route('contacts.index')
+                ->with('error', 'Erreur lors de la suppression du contact: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete all contacts from a specific campaign.
+     */
+    public function deleteCampaign(Request $request)
+    {
+        $request->validate([
+            'campagne' => 'required|string'
+        ]);
+
+        try {
+            $count = MessageWhatsapp::where('nom_campagne', $request->campagne)->count();
+
+            if ($count === 0) {
+                return redirect()->route('contacts.index')
+                    ->with('error', 'Aucun contact trouvé pour cette campagne.');
+            }
+
+            MessageWhatsapp::where('nom_campagne', $request->campagne)->delete();
+
+            return redirect()->route('contacts.index')
+                ->with('success', "Campagne '{$request->campagne}' supprimée avec succès ($count contacts supprimés)");
+
+        } catch (\Exception $e) {
+            return redirect()->route('contacts.index')
+                ->with('error', 'Erreur lors de la suppression de la campagne: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Formate le numéro de téléphone correctement
+     * Ne supprime PAS le premier zéro
      */
     private function formatPhoneNumber($phoneNumber)
     {
-        // Nettoyer le numéro (supprimer les espaces, tirets, etc.)
-        $cleanedNumber = preg_replace('/\s+|-|\(|\)/', '', $phoneNumber);
+        // Supprimer tous les caractères non numériques
+        $cleaned = preg_replace('/[^0-9]/', '', $phoneNumber);
 
-        // Vérifier si le numéro commence déjà par un indicatif international
-        if (preg_match('/^\+(\d+)/', $cleanedNumber)) {
-            // Le numéro a déjà un indicatif international, on le retourne tel quel
-            return $cleanedNumber;
+        // Si le numéro commence déjà par 225 (sans le +) et a 12 chiffres
+        if (strlen($cleaned) === 12 && substr($cleaned, 0, 3) === '225') {
+            return '+' . $cleaned;
         }
 
-        // Vérifier si le numéro commence par 225 (sans le +)
-        if (preg_match('/^225(\d+)/', $cleanedNumber)) {
-            // Ajouter le + devant 225
-            return '+' . $cleanedNumber;
+        // Si le numéro a 10 chiffres et commence par 0 (format local: 07 01 23 45 67)
+        if (strlen($cleaned) === 10 && substr($cleaned, 0, 1) === '0') {
+            return '+225' . $cleaned; // Garde le 0! Résultat: +2250701234567
         }
 
-        // Si le numéro commence par 0 (format local)
-        if (preg_match('/^0(\d+)/', $cleanedNumber)) {
-            // Remplacer le 0 initial par +225
-            return '+225' . substr($cleanedNumber, 1);
+        // Si le numéro a 9 chiffres (sans le 0 initial)
+        if (strlen($cleaned) === 9) {
+            return '+2250' . $cleaned; // Ajoute le 0! Résultat: +2250701234567
         }
 
-        // Pour tous les autres cas, on ajoute +225 par défaut
-        // (numéros sans indicatif et sans 0 initial)
-        return '+225' . $cleanedNumber;
+        // Si le numéro a 13 chiffres et commence par +225
+        if (strlen($cleaned) === 13 && substr($cleaned, 0, 4) === '2250') {
+            return '+' . $cleaned;
+        }
+
+        // Si le numéro est déjà au format international complet
+        if (strlen($cleaned) > 13 && substr($cleaned, 0, 4) === '2250') {
+            return '+' . $cleaned;
+        }
+
+        // Pour tous les autres cas, on retourne le numéro original
+        // Le système essaiera de le traiter tel quel
+        return $phoneNumber;
+    }
+
+    /**
+     * Valide le format du numéro de téléphone
+     */
+    private function isValidPhoneNumber($phoneNumber)
+    {
+        // Regex pour valider les formats:
+        // +2250701234567 (13 chiffres avec indicatif et 0)
+        // +225701234567 (12 chiffres avec indicatif mais sans le 0 - moins courant)
+        $pattern = '/^\+225(0)?[1-9]\d{7,8}$/';
+
+        return preg_match($pattern, $phoneNumber) === 1;
+    }
+
+    /**
+     * Get campaign statistics for dashboard
+     */
+    public function getCampaignStats()
+    {
+        $stats = MessageWhatsapp::select('nom_campagne')
+            ->selectRaw('COUNT(*) as total_contacts')
+            ->selectRaw('SUM(CASE WHEN id_twilio IS NOT NULL THEN 1 ELSE 0 END) as sent_messages')
+            ->groupBy('nom_campagne')
+            ->get();
+
+        return $stats;
+    }
+
+    /**
+     * Get recent contacts for dashboard
+     */
+    public function getRecentContacts($limit = 10)
+    {
+        return MessageWhatsapp::with('campagne')
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get();
     }
 }

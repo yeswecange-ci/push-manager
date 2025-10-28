@@ -1,7 +1,19 @@
 <x-app-layout>
     <div class="flex h-screen bg-gray-50">
+        <!-- Mobile menu button -->
+        <div class="lg:hidden fixed top-4 left-4 z-50">
+            <button id="mobile-menu-button" class="p-2 bg-white rounded-lg shadow-md">
+                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Sidebar Overlay -->
+        <div id="sidebar-overlay" class="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
+
         <!-- Sidebar -->
-        <aside class="w-64 bg-white border-r border-gray-200">
+        <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 w-64 bg-white border-r border-gray-200 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40">
             <div class="p-6 border-b border-gray-100">
                 <div class="flex items-center space-x-2">
                     <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -54,33 +66,33 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto">
+        <main class="flex-1 overflow-y-auto lg:ml-0">
             <!-- Header -->
             <header class="bg-white border-b border-gray-100">
-                <div class="flex items-center justify-between px-8 py-5">
-                    <div>
-                        <h2 class="text-xl font-bold text-gray-900">Tableau de Bord</h2>
-                        <p class="text-sm text-gray-500 mt-0.5">Vue d'ensemble de vos statistiques</p>
+                <div class="flex items-center justify-between px-4 lg:px-8 py-4 lg:py-5">
+                    <div class="lg:ml-0 ml-12">
+                        <h2 class="text-lg lg:text-xl font-bold text-gray-900">Tableau de Bord</h2>
+                        <p class="text-xs text-gray-500 mt-0.5">Vue d'ensemble de vos statistiques</p>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <div class="text-right mr-4">
+                        <div class="text-right mr-4 hidden sm:block">
                             <p class="text-xs text-gray-500">{{ now()->format('d/m/Y') }}</p>
                             <p class="text-sm font-medium text-gray-700">{{ now()->format('H:i') }}</p>
                         </div>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition flex items-center">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <button type="submit" class="px-3 py-2 lg:px-4 lg:py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition flex items-center">
+                                <svg class="w-4 h-4 mr-1 lg:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                                 </svg>
-                                Déconnexion
+                                <span class="hidden sm:inline">Déconnexion</span>
                             </button>
                         </form>
                     </div>
                 </div>
             </header>
 
-            <div class="p-8">
+            <div class="p-4 lg:p-8">
                 <!-- Success Message -->
                 @if (session('success'))
                     <div class="p-4 mb-6 bg-green-50 border border-green-200 rounded-xl flex items-center animate-fade-in">
@@ -99,80 +111,80 @@
                 @endif
 
                 <!-- Statistics Cards -->
-                <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
-                    <div class="bg-white p-6 rounded-xl border border-gray-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center">
-                                <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
+                    <div class="bg-white p-4 lg:p-6 rounded-xl border border-gray-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-3 lg:mb-4">
+                            <div class="w-10 h-10 lg:w-12 lg:h-12 bg-indigo-50 rounded-xl flex items-center justify-center">
+                                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                                 </svg>
                             </div>
-                            <span class="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-semibold rounded-full">Total</span>
+                            <span class="px-2 py-1 lg:px-3 lg:py-1 bg-indigo-50 text-indigo-600 text-xs font-semibold rounded-full">Total</span>
                         </div>
-                        <p class="text-3xl font-bold text-gray-900 mb-1">{{ number_format($total) }}</p>
-                        <p class="text-sm text-gray-500">Contacts enregistrés</p>
+                        <p class="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">{{ number_format($total) }}</p>
+                        <p class="text-xs lg:text-sm text-gray-500">Contacts enregistrés</p>
                     </div>
 
-                    <div class="bg-white p-6 rounded-xl border border-gray-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center">
-                                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="bg-white p-4 lg:p-6 rounded-xl border border-gray-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-3 lg:mb-4">
+                            <div class="w-10 h-10 lg:w-12 lg:h-12 bg-green-50 rounded-xl flex items-center justify-center">
+                                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                 </svg>
                             </div>
-                            <span class="px-3 py-1 bg-green-50 text-green-600 text-xs font-semibold rounded-full">Aujourd'hui</span>
+                            <span class="px-2 py-1 lg:px-3 lg:py-1 bg-green-50 text-green-600 text-xs font-semibold rounded-full">Aujourd'hui</span>
                         </div>
-                        <p class="text-3xl font-bold text-gray-900 mb-1">{{ number_format($todayMessages) }}</p>
-                        <p class="text-sm text-gray-500">Nouveaux contacts</p>
+                        <p class="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">{{ number_format($todayMessages) }}</p>
+                        <p class="text-xs lg:text-sm text-gray-500">Nouveaux contacts</p>
                     </div>
 
-                    <div class="bg-white p-6 rounded-xl border border-gray-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
-                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="bg-white p-4 lg:p-6 rounded-xl border border-gray-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-3 lg:mb-4">
+                            <div class="w-10 h-10 lg:w-12 lg:h-12 bg-blue-50 rounded-xl flex items-center justify-center">
+                                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
                                 </svg>
                             </div>
-                            <span class="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-semibold rounded-full">Taux</span>
+                            <span class="px-2 py-1 lg:px-3 lg:py-1 bg-blue-50 text-blue-600 text-xs font-semibold rounded-full">Taux</span>
                         </div>
-                        <p class="text-3xl font-bold text-gray-900 mb-1">{{ $successRate }}%</p>
-                        <p class="text-sm text-gray-500">Messages envoyés</p>
+                        <p class="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">{{ $successRate }}%</p>
+                        <p class="text-xs lg:text-sm text-gray-500">Messages envoyés</p>
                     </div>
 
-                    <div class="bg-white p-6 rounded-xl border border-gray-100 hover:shadow-md transition-shadow">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center">
-                                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="bg-white p-4 lg:p-6 rounded-xl border border-gray-100 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-3 lg:mb-4">
+                            <div class="w-10 h-10 lg:w-12 lg:h-12 bg-purple-50 rounded-xl flex items-center justify-center">
+                                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                                 </svg>
                             </div>
-                            <span class="px-3 py-1 bg-purple-50 text-purple-600 text-xs font-semibold rounded-full">Campagnes</span>
+                            <span class="px-2 py-1 lg:px-3 lg:py-1 bg-purple-50 text-purple-600 text-xs font-semibold rounded-full">Campagnes</span>
                         </div>
-                        <p class="text-3xl font-bold text-gray-900 mb-1">{{ $campagnes->count() }}</p>
-                        <p class="text-sm text-gray-500">Campagnes actives</p>
+                        <p class="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">{{ $campagnes->count() }}</p>
+                        <p class="text-xs lg:text-sm text-gray-500">Campagnes actives</p>
                     </div>
                 </div>
 
                 <!-- Campaign Statistics -->
                 @if($campaignStats->count() > 0)
-                <div class="bg-white p-6 rounded-xl border border-gray-100 mb-8">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Statistiques par Campagne</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="bg-white p-4 lg:p-6 rounded-xl border border-gray-100 mb-6 lg:mb-8">
+                    <h3 class="text-base lg:text-lg font-bold text-gray-900 mb-4">Statistiques par Campagne</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
                         @foreach($campaignStats as $stat)
-                        <div class="border border-gray-200 rounded-lg p-4">
-                            <h4 class="font-semibold text-gray-900 mb-2">{{ $stat->nom_campagne }}</h4>
-                            <div class="flex justify-between text-sm">
+                        <div class="border border-gray-200 rounded-lg p-3 lg:p-4">
+                            <h4 class="font-semibold text-gray-900 text-sm lg:text-base mb-2">{{ $stat->nom_campagne }}</h4>
+                            <div class="flex justify-between text-xs lg:text-sm">
                                 <span class="text-gray-600">Contacts:</span>
                                 <span class="font-semibold">{{ $stat->total_contacts }}</span>
                             </div>
-                            <div class="flex justify-between text-sm">
+                            <div class="flex justify-between text-xs lg:text-sm">
                                 <span class="text-gray-600">Envoyés:</span>
                                 <span class="font-semibold text-green-600">{{ $stat->sent_messages }}</span>
                             </div>
                             @php
                                 $rate = $stat->total_contacts > 0 ? round(($stat->sent_messages / $stat->total_contacts) * 100, 1) : 0;
                             @endphp
-                            <div class="flex justify-between text-sm">
+                            <div class="flex justify-between text-xs lg:text-sm">
                                 <span class="text-gray-600">Taux:</span>
                                 <span class="font-semibold {{ $rate >= 80 ? 'text-green-600' : ($rate >= 50 ? 'text-yellow-600' : 'text-red-600') }}">
                                     {{ $rate }}%
@@ -186,29 +198,29 @@
 
                 <!-- Recent Contacts -->
                 @if($recentContacts->count() > 0)
-                <div class="bg-white p-6 rounded-xl border border-gray-100">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Contacts Récents</h3>
+                <div class="bg-white p-4 lg:p-6 rounded-xl border border-gray-100">
+                    <h3 class="text-base lg:text-lg font-bold text-gray-900 mb-4">Contacts Récents</h3>
                     <div class="overflow-x-auto">
-                        <table class="w-full">
+                        <table class="w-full min-w-[500px]">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Numéro</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Campagne</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Date</th>
+                                    <th class="px-3 py-2 lg:px-4 lg:py-3 text-left text-xs font-semibold text-gray-600 uppercase">Numéro</th>
+                                    <th class="px-3 py-2 lg:px-4 lg:py-3 text-left text-xs font-semibold text-gray-600 uppercase">Campagne</th>
+                                    <th class="px-3 py-2 lg:px-4 lg:py-3 text-left text-xs font-semibold text-gray-600 uppercase">Date</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
                                 @foreach($recentContacts as $contact)
                                 <tr class="hover:bg-gray-50 transition">
-                                    <td class="px-4 py-3 whitespace-nowrap">
+                                    <td class="px-3 py-2 lg:px-4 lg:py-3 whitespace-nowrap">
                                         <span class="text-sm font-semibold text-gray-900">{{ $contact->numero_telephone }}</span>
                                     </td>
-                                    <td class="px-4 py-3 whitespace-nowrap">
+                                    <td class="px-3 py-2 lg:px-4 lg:py-3 whitespace-nowrap">
                                         <span class="px-2 py-1 text-xs font-semibold text-indigo-700 bg-indigo-50 rounded">
                                             {{ $contact->nom_campagne }}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+                                    <td class="px-3 py-2 lg:px-4 lg:py-3 whitespace-nowrap text-xs lg:text-sm text-gray-600">
                                         {{ $contact->created_at->format('d/m/Y H:i') }}
                                     </td>
                                 </tr>
@@ -220,17 +232,17 @@
                 @endif
 
                 <!-- Quick Actions -->
-                <div class="mt-8 bg-white p-6 rounded-xl border border-gray-100">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">Actions Rapides</h3>
-                    <div class="flex flex-wrap gap-4">
-                        <a href="{{ route('contacts.index') }}" class="inline-flex items-center px-5 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors">
+                <div class="mt-6 lg:mt-8 bg-white p-4 lg:p-6 rounded-xl border border-gray-100">
+                    <h3 class="text-base lg:text-lg font-bold text-gray-900 mb-4">Actions Rapides</h3>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <a href="{{ route('contacts.index') }}" class="inline-flex items-center justify-center px-4 py-2.5 lg:px-5 lg:py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                             </svg>
                             Gérer les contacts
                         </a>
 
-                        <a href="{{ route('twilio.config') }}" class="inline-flex items-center px-5 py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors">
+                        <a href="{{ route('twilio.config') }}" class="inline-flex items-center justify-center px-4 py-2.5 lg:px-5 lg:py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -242,6 +254,32 @@
             </div>
         </main>
     </div>
+
+    <script>
+        // Mobile menu functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('-translate-x-full');
+                sidebarOverlay.classList.toggle('hidden');
+            }
+
+            mobileMenuButton.addEventListener('click', toggleSidebar);
+            sidebarOverlay.addEventListener('click', toggleSidebar);
+
+            // Close sidebar when clicking on a link (mobile)
+            sidebar.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth < 1024) {
+                        toggleSidebar();
+                    }
+                });
+            });
+        });
+    </script>
 
     <style>
         @keyframes fade-in {

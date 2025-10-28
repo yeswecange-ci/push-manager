@@ -1,7 +1,19 @@
 <x-app-layout>
     <div class="flex h-screen bg-gray-50">
-        <!-- Sidebar (identique au dashboard) -->
-        <aside class="w-64 bg-white border-r border-gray-200">
+        <!-- Mobile menu button -->
+        <div class="lg:hidden fixed top-4 left-4 z-50">
+            <button id="mobile-menu-button" class="p-2 bg-white rounded-lg shadow-md">
+                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Sidebar Overlay -->
+        <div id="sidebar-overlay" class="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 w-64 bg-white border-r border-gray-200 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40">
             <div class="p-6 border-b border-gray-100">
                 <div class="flex items-center space-x-2">
                     <div
@@ -66,35 +78,35 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto">
+        <main class="flex-1 overflow-y-auto lg:ml-0">
             <!-- Header -->
             <header class="bg-white border-b border-gray-100">
-                <div class="flex items-center justify-between px-8 py-5">
-                    <div>
-                        <h2 class="text-xl font-bold text-gray-900">Gestion des Contacts</h2>
-                        <p class="text-sm text-gray-500 mt-0.5">Gérez vos campagnes WhatsApp</p>
+                <div class="flex items-center justify-between px-4 lg:px-8 py-4 lg:py-5">
+                    <div class="lg:ml-0 ml-12">
+                        <h2 class="text-lg lg:text-xl font-bold text-gray-900">Gestion des Contacts</h2>
+                        <p class="text-xs text-gray-500 mt-0.5">Gérez vos campagnes WhatsApp</p>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <div class="text-right mr-4">
+                        <div class="text-right mr-4 hidden sm:block">
                             <p class="text-xs text-gray-500">{{ now()->format('d/m/Y') }}</p>
                             <p class="text-sm font-medium text-gray-700">{{ now()->format('H:i') }}</p>
                         </div>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit"
-                                class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition flex items-center">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                class="px-3 py-2 lg:px-4 lg:py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition flex items-center">
+                                <svg class="w-4 h-4 mr-1 lg:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                 </svg>
-                                Déconnexion
+                                <span class="hidden sm:inline">Déconnexion</span>
                             </button>
                         </form>
                     </div>
                 </div>
             </header>
 
-            <div class="p-8">
+            <div class="p-4 lg:p-8">
                 <!-- Success Message -->
                 @if (session('success'))
                     <div
@@ -119,54 +131,54 @@
                 @endif
 
                 <!-- Actions Bar -->
-                <div class="bg-white p-6 rounded-xl border border-gray-100 mb-6">
-                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                        <div class="flex flex-wrap gap-3">
+                <div class="bg-white p-4 lg:p-6 rounded-xl border border-gray-100 mb-4 lg:mb-6">
+                    <div class="flex flex-col gap-4">
+                        <div class="flex flex-wrap gap-2 lg:gap-3">
                             <button onclick="openModal('addModal')"
-                                class="inline-flex items-center px-5 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                class="inline-flex items-center px-4 py-2 lg:px-5 lg:py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors flex-1 lg:flex-none justify-center">
+                                <svg class="w-4 h-4 lg:w-5 lg:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                 </svg>
-                                Ajouter un contact
+                                <span class="text-xs lg:text-sm">Ajouter</span>
                             </button>
 
                             <button onclick="openModal('importModal')"
-                                class="inline-flex items-center px-5 py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                class="inline-flex items-center px-4 py-2 lg:px-5 lg:py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors flex-1 lg:flex-none justify-center">
+                                <svg class="w-4 h-4 lg:w-5 lg:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                 </svg>
-                                Importer CSV
+                                <span class="text-xs lg:text-sm">Importer</span>
                             </button>
 
                             <button onclick="openModal('sendCampaignModal')"
-                                class="inline-flex items-center px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                class="inline-flex items-center px-4 py-2 lg:px-5 lg:py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex-1 lg:flex-none justify-center">
+                                <svg class="w-4 h-4 lg:w-5 lg:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                                 </svg>
-                                Envoyer à une campagne
+                                <span class="text-xs lg:text-sm">Envoyer</span>
                             </button>
 
                             @if ($campagnes->count() > 0)
                                 <button onclick="openModal('deleteCampaignModal')"
-                                    class="inline-flex items-center px-5 py-2.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor"
+                                    class="inline-flex items-center px-4 py-2 lg:px-5 lg:py-2.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors flex-1 lg:flex-none justify-center">
+                                    <svg class="w-4 h-4 lg:w-5 lg:h-5 mr-2" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
-                                    Supprimer une campagne
+                                    <span class="text-xs lg:text-sm">Supprimer</span>
                                 </button>
                             @endif
                         </div>
 
-                        <div class="flex gap-3 items-center">
+                        <div class="flex flex-col lg:flex-row gap-3 lg:items-center">
                             <!-- Search Bar -->
-                            <div class="relative">
+                            <div class="relative flex-1">
                                 <input type="text" id="globalSearch" placeholder="Rechercher un numéro..."
-                                    class="pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white hover:border-gray-300 transition w-64">
+                                    class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white hover:border-gray-300 transition">
                                 <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"
                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -175,9 +187,9 @@
                             </div>
 
                             <!-- Filter -->
-                            <form method="GET" id="filterForm" class="flex gap-3 items-center">
+                            <form method="GET" id="filterForm" class="flex gap-2 lg:gap-3 items-center">
                                 <select name="campagne" onchange="submitWithLoader()"
-                                    class="px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white hover:border-gray-300 transition">
+                                    class="flex-1 lg:flex-none px-3 lg:px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white hover:border-gray-300 transition">
                                     <option value="">Toutes les campagnes</option>
                                     @foreach ($campagnes as $campagne)
                                         <option value="{{ $campagne }}"
@@ -189,13 +201,13 @@
 
                                 @if (request('campagne'))
                                     <a href="{{ route('contacts.index') }}"
-                                        class="inline-flex items-center px-4 py-2.5 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition">
-                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                        class="inline-flex items-center px-3 lg:px-4 py-2.5 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition">
+                                        <svg class="w-4 h-4 mr-1 lg:mr-2" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M6 18L18 6M6 6l12 12"></path>
                                         </svg>
-                                        Réinitialiser
+                                        <span class="hidden lg:inline">Réinitialiser</span>
                                     </a>
                                 @endif
                             </form>
@@ -206,56 +218,56 @@
                 <!-- Table -->
                 <div class="bg-white rounded-xl border border-gray-100 overflow-hidden">
                     <div class="overflow-x-auto">
-                        <table class="w-full">
+                        <table class="w-full min-w-[600px]">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">ID
+                                    <th class="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase">ID
                                     </th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
+                                    <th class="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase">
                                         Numéro</th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
+                                    <th class="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase">
                                         Campagne</th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Date
+                                    <th class="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase">Date
                                         d'envoi</th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">ID
+                                    <th class="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase">ID
                                         Twilio</th>
-                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">
+                                    <th class="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-semibold text-gray-600 uppercase">
                                         Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
                                 @forelse($messages as $message)
                                     <tr class="hover:bg-gray-50 transition">
-                                        <td class="px-6 py-4 whitespace-nowrap">
+                                        <td class="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
                                             <span
                                                 class="text-sm font-medium text-gray-900">#{{ $message->id }}</span>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
+                                        <td class="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
                                             <span
                                                 class="text-sm font-semibold text-gray-900">{{ $message->numero_telephone }}</span>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
+                                        <td class="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
                                             <span
-                                                class="px-3 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 rounded-lg">
+                                                class="px-2 py-1 lg:px-3 lg:py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 rounded-lg">
                                                 {{ $message->nom_campagne }}
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                        <td class="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap text-sm text-gray-600">
                                             {{ $message->date_envoi ? $message->date_envoi->format('d/m/Y H:i') : '-' }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
+                                        <td class="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
                                             <span
                                                 class="text-xs font-mono text-gray-500">{{ $message->id_twilio ?? '-' }}</span>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                            <div class="flex items-center gap-3">
+                                        <td class="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap text-sm">
+                                            <div class="flex items-center gap-2 lg:gap-3">
                                                 <button onclick="sendToContact({{ $message->id }})"
-                                                    class="text-blue-600 hover:text-blue-800 font-medium transition">
+                                                    class="text-blue-600 hover:text-blue-800 font-medium transition text-xs lg:text-sm">
                                                     Envoyer
                                                 </button>
-                                                <span class="text-gray-300">|</span>
+                                                <span class="text-gray-300 hidden lg:inline">|</span>
                                                 <button onclick="deleteContact({{ $message->id }})"
-                                                    class="text-red-600 hover:text-red-800 font-medium transition">
+                                                    class="text-red-600 hover:text-red-800 font-medium transition text-xs lg:text-sm">
                                                     Supprimer
                                                 </button>
                                             </div>
@@ -263,24 +275,24 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="px-6 py-16 text-center">
+                                        <td colspan="6" class="px-4 lg:px-6 py-8 lg:py-16 text-center">
                                             <div class="flex flex-col items-center">
                                                 <div
-                                                    class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                                                    <svg class="w-8 h-8 text-gray-400" fill="none"
+                                                    class="w-12 h-12 lg:w-16 lg:h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3 lg:mb-4">
+                                                    <svg class="w-6 h-6 lg:w-8 lg:h-8 text-gray-400" fill="none"
                                                         stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             stroke-width="2"
                                                             d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                                                     </svg>
                                                 </div>
-                                                <p class="text-gray-900 font-medium text-lg mb-1">Aucun contact trouvé
+                                                <p class="text-gray-900 font-medium text-base lg:text-lg mb-1">Aucun contact trouvé
                                                 </p>
-                                                <p class="text-gray-500 text-sm mb-6">Commencez par ajouter vos
+                                                <p class="text-gray-500 text-xs lg:text-sm mb-4 lg:mb-6">Commencez par ajouter vos
                                                     premiers contacts</p>
                                                 <button onclick="openModal('addModal')"
-                                                    class="inline-flex items-center px-5 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition">
-                                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor"
+                                                    class="inline-flex items-center px-4 py-2 lg:px-5 lg:py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition">
+                                                    <svg class="w-4 h-4 lg:w-5 lg:h-5 mr-2" fill="none" stroke="currentColor"
                                                         viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -296,7 +308,7 @@
                     </div>
 
                     @if ($messages->hasPages())
-                        <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
+                        <div class="px-4 lg:px-6 py-3 lg:py-4 bg-gray-50 border-t border-gray-100">
                             {{ $messages->links() }}
                         </div>
                     @endif
@@ -307,37 +319,37 @@
 
     <!-- Global Loader - Z-index le plus élevé -->
     <div id="globalLoader" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center">
-        <div class="bg-white rounded-xl p-8 max-w-sm w-full mx-4 text-center">
-            <div class="relative w-16 h-16 mx-auto mb-4">
+        <div class="bg-white rounded-xl p-6 lg:p-8 max-w-sm w-full mx-4 text-center">
+            <div class="relative w-12 h-12 lg:w-16 lg:h-16 mx-auto mb-3 lg:mb-4">
                 <div class="absolute inset-0 border-4 border-indigo-200 rounded-full"></div>
                 <div
                     class="absolute inset-0 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin">
                 </div>
             </div>
-            <p class="text-gray-900 font-medium mb-1" id="loaderTitle">Chargement...</p>
-            <p class="text-sm text-gray-500" id="loaderMessage">Veuillez patienter</p>
+            <p class="text-gray-900 font-medium text-sm lg:text-base mb-1" id="loaderTitle">Chargement...</p>
+            <p class="text-xs lg:text-sm text-gray-500" id="loaderMessage">Veuillez patienter</p>
         </div>
     </div>
 
     <!-- Message Modal -->
     <div id="messageModal"
         class="hidden fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl p-8 max-w-md w-full">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-bold text-gray-900" id="modalTitle">Titre</h3>
+        <div class="bg-white rounded-xl p-6 lg:p-8 max-w-md w-full mx-4">
+            <div class="flex items-center justify-between mb-4 lg:mb-6">
+                <h3 class="text-lg lg:text-xl font-bold text-gray-900" id="modalTitle">Titre</h3>
                 <button onclick="closeModal('messageModal')" class="text-gray-400 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
-            <div class="mb-6">
-                <p class="text-gray-700" id="modalMessage">Message</p>
+            <div class="mb-4 lg:mb-6">
+                <p class="text-gray-700 text-sm lg:text-base" id="modalMessage">Message</p>
             </div>
             <div class="flex justify-end">
                 <button onclick="closeModal('messageModal')"
-                    class="px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition">
+                    class="px-4 lg:px-6 py-2 lg:py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition text-sm lg:text-base">
                     Fermer
                 </button>
             </div>
@@ -346,11 +358,11 @@
 
     <!-- Add Contact Modal - AMÉLIORÉ -->
     <div id="addModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl p-8 max-w-md w-full">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-bold text-gray-900">Nouveau contact</h3>
+        <div class="bg-white rounded-xl p-6 lg:p-8 max-w-md w-full mx-4">
+            <div class="flex items-center justify-between mb-4 lg:mb-6">
+                <h3 class="text-lg lg:text-xl font-bold text-gray-900">Nouveau contact</h3>
                 <button onclick="closeModal('addModal')" class="text-gray-400 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -360,12 +372,12 @@
             <form method="POST" action="{{ route('contacts.store') }}" id="addContactForm"
                 onsubmit="return submitFormWithLoader(event, 'Ajout en cours...', 'Le contact est en cours d\'ajout')">
                 @csrf
-                <div class="space-y-4">
+                <div class="space-y-3 lg:space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Numéro de téléphone *</label>
                         <input type="text" name="numero_telephone" id="numero_telephone" required
                             placeholder="0701234567 ou +225701234567"
-                            class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            class="w-full px-3 lg:px-4 py-2 lg:py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                         <p class="text-xs text-gray-500 mt-1">L'indicatif +225 sera ajouté automatiquement si absent</p>
                     </div>
 
@@ -373,13 +385,13 @@
                         <label class="block text-sm font-medium text-gray-700 mb-3">Campagne</label>
 
                         <!-- Switch entre sélection et saisie -->
-                        <div class="flex items-center gap-3 mb-3">
+                        <div class="flex items-center gap-2 lg:gap-3 mb-3">
                             <button type="button" id="switchToSelect"
-                                class="px-3 py-1.5 text-xs font-medium bg-indigo-600 text-white rounded-lg transition">
+                                class="px-2 lg:px-3 py-1 lg:py-1.5 text-xs font-medium bg-indigo-600 text-white rounded-lg transition">
                                 Choisir existante
                             </button>
                             <button type="button" id="switchToInput"
-                                class="px-3 py-1.5 text-xs font-medium bg-gray-200 text-gray-700 rounded-lg transition">
+                                class="px-2 lg:px-3 py-1 lg:py-1.5 text-xs font-medium bg-gray-200 text-gray-700 rounded-lg transition">
                                 Nouvelle campagne
                             </button>
                         </div>
@@ -387,7 +399,7 @@
                         <!-- Sélection de campagne existante -->
                         <div id="campagneSelectContainer">
                             <select name="campagne_existante" id="campagne_existante"
-                                class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                class="w-full px-3 lg:px-4 py-2 lg:py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                                 <option value="">Sélectionner une campagne</option>
                                 @foreach ($campagnes as $campagne)
                                     <option value="{{ $campagne }}">{{ $campagne }}</option>
@@ -399,17 +411,17 @@
                         <div id="campagneInputContainer" class="hidden">
                             <input type="text" name="nom_campagne" id="nom_campagne"
                                 placeholder="Nom de la nouvelle campagne"
-                                class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                class="w-full px-3 lg:px-4 py-2 lg:py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                         </div>
                     </div>
                 </div>
-                <div class="flex gap-3 mt-6">
+                <div class="flex gap-2 lg:gap-3 mt-4 lg:mt-6">
                     <button type="submit"
-                        class="flex-1 px-4 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition">
+                        class="flex-1 px-3 lg:px-4 py-2 lg:py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition text-sm lg:text-base">
                         Ajouter
                     </button>
                     <button type="button" onclick="closeModal('addModal')"
-                        class="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition">
+                        class="flex-1 px-3 lg:px-4 py-2 lg:py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition text-sm lg:text-base">
                         Annuler
                     </button>
                 </div>
@@ -420,20 +432,20 @@
     <!-- Import CSV Modal -->
     <div id="importModal"
         class="hidden fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl p-8 max-w-md w-full">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-bold text-gray-900">Importer des contacts</h3>
+        <div class="bg-white rounded-xl p-6 lg:p-8 max-w-md w-full mx-4">
+            <div class="flex items-center justify-between mb-4 lg:mb-6">
+                <h3 class="text-lg lg:text-xl font-bold text-gray-900">Importer des contacts</h3>
                 <button onclick="closeModal('importModal')" class="text-gray-400 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
 
-            <div class="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-lg">
+            <div class="mb-4 lg:mb-6 p-3 lg:p-4 bg-blue-50 border border-blue-100 rounded-lg">
                 <p class="text-sm text-blue-900 font-medium mb-2">Format requis</p>
-                <code class="text-xs bg-white px-3 py-2 rounded block text-gray-700">
+                <code class="text-xs bg-white px-2 lg:px-3 py-1 lg:py-2 rounded block text-gray-700">
                     numero_telephone,nom_campagne<br>
                     0701234567,Campagne_2024<br>
                     701234567,Campagne_2024<br>
@@ -445,44 +457,44 @@
             <form method="POST" action="{{ route('contacts.import') }}" enctype="multipart/form-data"
                 id="importForm" onsubmit="return submitImportWithProgress(event)">
                 @csrf
-                <div class="mb-6">
+                <div class="mb-4 lg:mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-3">Fichier CSV *</label>
                     <input type="file" name="csv_file" id="csvFile" accept=".csv" required class="hidden"
                         onchange="updateFileName(this)">
                     <label for="csvFile"
-                        class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition">
-                        <svg class="w-10 h-10 text-gray-400 mb-2" fill="none" stroke="currentColor"
+                        class="flex flex-col items-center justify-center w-full h-24 lg:h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition">
+                        <svg class="w-8 h-8 lg:w-10 lg:h-10 text-gray-400 mb-1 lg:mb-2" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
                             </path>
                         </svg>
-                        <p class="text-sm font-medium text-gray-600" id="fileLabel">Cliquez pour sélectionner</p>
+                        <p class="text-xs lg:text-sm font-medium text-gray-600" id="fileLabel">Cliquez pour sélectionner</p>
                         <p class="text-xs text-gray-500 mt-1">CSV uniquement</p>
                     </label>
                 </div>
 
                 <!-- Progress Bar -->
-                <div id="progressBar" class="hidden mb-6">
+                <div id="progressBar" class="hidden mb-4 lg:mb-6">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-sm font-medium text-gray-700">Importation en cours...</span>
                         <span class="text-sm font-medium text-indigo-600" id="progressPercent">0%</span>
                     </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                    <div class="w-full bg-gray-200 rounded-full h-2 lg:h-2.5 overflow-hidden">
                         <div id="progressBarFill"
-                            class="bg-gradient-to-r from-indigo-500 to-purple-600 h-2.5 rounded-full transition-all duration-500"
+                            class="bg-gradient-to-r from-indigo-500 to-purple-600 h-2 lg:h-2.5 rounded-full transition-all duration-500"
                             style="width: 0%"></div>
                     </div>
                     <p class="text-xs text-gray-500 mt-2" id="progressMessage">Préparation...</p>
                 </div>
 
-                <div class="flex gap-3">
+                <div class="flex gap-2 lg:gap-3">
                     <button type="submit" id="importButton"
-                        class="flex-1 px-4 py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition">
+                        class="flex-1 px-3 lg:px-4 py-2 lg:py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition text-sm lg:text-base">
                         Importer
                     </button>
                     <button type="button" onclick="closeModal('importModal')"
-                        class="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition">
+                        class="flex-1 px-3 lg:px-4 py-2 lg:py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition text-sm lg:text-base">
                         Annuler
                     </button>
                 </div>
@@ -493,29 +505,29 @@
     <!-- Delete Contact Modal -->
     <div id="deleteModal"
         class="hidden fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl p-8 max-w-md w-full">
-            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-white rounded-xl p-6 lg:p-8 max-w-md w-full mx-4">
+            <div class="w-12 h-12 lg:w-16 lg:h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3 lg:mb-4">
+                <svg class="w-6 h-6 lg:w-8 lg:h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
                     </path>
                 </svg>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 text-center mb-2">Confirmer la suppression</h3>
-            <p class="text-sm text-gray-600 text-center mb-6">Êtes-vous sûr de vouloir supprimer ce contact ? Cette
+            <h3 class="text-lg lg:text-xl font-bold text-gray-900 text-center mb-2">Confirmer la suppression</h3>
+            <p class="text-xs lg:text-sm text-gray-600 text-center mb-4 lg:mb-6">Êtes-vous sûr de vouloir supprimer ce contact ? Cette
                 action est irréversible.</p>
 
             <form id="deleteForm" method="POST"
                 onsubmit="return submitFormWithLoader(event, 'Suppression...', 'Le contact est en cours de suppression')">
                 @csrf
                 @method('DELETE')
-                <div class="flex gap-3">
+                <div class="flex gap-2 lg:gap-3">
                     <button type="button" onclick="closeModal('deleteModal')"
-                        class="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition">
+                        class="flex-1 px-3 lg:px-4 py-2 lg:py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition text-sm lg:text-base">
                         Annuler
                     </button>
                     <button type="submit"
-                        class="flex-1 px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition">
+                        class="flex-1 px-3 lg:px-4 py-2 lg:py-2.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition text-sm lg:text-base">
                         Supprimer
                     </button>
                 </div>
@@ -526,39 +538,39 @@
     <!-- Delete Campaign Modal -->
     <div id="deleteCampaignModal"
         class="hidden fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl p-8 max-w-md w-full">
-            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-white rounded-xl p-6 lg:p-8 max-w-md w-full mx-4">
+            <div class="w-12 h-12 lg:w-16 lg:h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3 lg:mb-4">
+                <svg class="w-6 h-6 lg:w-8 lg:h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
                     </path>
                 </svg>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 text-center mb-2">Supprimer une campagne</h3>
-            <p class="text-sm text-gray-600 text-center mb-6">Tous les contacts de cette campagne seront supprimés.
+            <h3 class="text-lg lg:text-xl font-bold text-gray-900 text-center mb-2">Supprimer une campagne</h3>
+            <p class="text-xs lg:text-sm text-gray-600 text-center mb-4 lg:mb-6">Tous les contacts de cette campagne seront supprimés.
                 Cette action est irréversible.</p>
 
             <form method="POST" action="{{ route('contacts.deleteCampaign') }}"
                 onsubmit="return submitFormWithLoader(event, 'Suppression de la campagne...', 'Suppression de tous les contacts en cours')">
                 @csrf
                 @method('DELETE')
-                <div class="mb-6">
+                <div class="mb-4 lg:mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Sélectionner une campagne</label>
                     <select name="campagne" required
-                        class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        class="w-full px-3 lg:px-4 py-2 lg:py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent">
                         <option value="">Choisir une campagne</option>
                         @foreach ($campagnes as $campagne)
                             <option value="{{ $campagne }}">{{ $campagne }}</option>
                         @endforeach
                     </select>
                 </div>
-                <div class="flex gap-3">
+                <div class="flex gap-2 lg:gap-3">
                     <button type="button" onclick="closeModal('deleteCampaignModal')"
-                        class="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition">
+                        class="flex-1 px-3 lg:px-4 py-2 lg:py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition text-sm lg:text-base">
                         Annuler
                     </button>
                     <button type="submit"
-                        class="flex-1 px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition">
+                        class="flex-1 px-3 lg:px-4 py-2 lg:py-2.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition text-sm lg:text-base">
                         Supprimer la campagne
                     </button>
                 </div>
@@ -569,22 +581,22 @@
     <!-- Send to Campaign Modal -->
     <div id="sendCampaignModal"
         class="hidden fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl p-8 max-w-md w-full">
-            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="bg-white rounded-xl p-6 lg:p-8 max-w-md w-full mx-4">
+            <div class="w-12 h-12 lg:w-16 lg:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 lg:mb-4">
+                <svg class="w-6 h-6 lg:w-8 lg:h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                 </svg>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 text-center mb-2">Envoyer à une campagne</h3>
-            <p class="text-sm text-gray-600 text-center mb-6">Tous les contacts de cette campagne recevront le message
+            <h3 class="text-lg lg:text-xl font-bold text-gray-900 text-center mb-2">Envoyer à une campagne</h3>
+            <p class="text-xs lg:text-sm text-gray-600 text-center mb-4 lg:mb-6">Tous les contacts de cette campagne recevront le message
                 WhatsApp</p>
 
             <form id="sendCampaignForm">
-                <div class="mb-6">
+                <div class="mb-4 lg:mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Sélectionner une campagne</label>
                     <select name="campagne" required
-                        class="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        class="w-full px-3 lg:px-4 py-2 lg:py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <option value="">Choisir une campagne</option>
                         @foreach ($campagnes as $campagne)
                             <option value="{{ $campagne }}">{{ $campagne }}
@@ -594,9 +606,9 @@
                     </select>
                 </div>
 
-                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 lg:p-4 mb-4 lg:mb-6">
                     <div class="flex items-start">
-                        <svg class="w-5 h-5 text-yellow-600 mr-2 flex-shrink-0 mt-0.5" fill="currentColor"
+                        <svg class="w-4 h-4 lg:w-5 lg:h-5 text-yellow-600 mr-2 flex-shrink-0 mt-0.5" fill="currentColor"
                             viewBox="0 0 20 20">
                             <path fill-rule="evenodd"
                                 d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
@@ -610,13 +622,13 @@
                     </div>
                 </div>
 
-                <div class="flex gap-3">
+                <div class="flex gap-2 lg:gap-3">
                     <button type="button" onclick="closeModal('sendCampaignModal')"
-                        class="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition">
+                        class="flex-1 px-3 lg:px-4 py-2 lg:py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition text-sm lg:text-base">
                         Annuler
                     </button>
                     <button type="button" onclick="sendCampaign()"
-                        class="flex-1 px-4 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
+                        class="flex-1 px-3 lg:px-4 py-2 lg:py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition text-sm lg:text-base">
                         Envoyer les messages
                     </button>
                 </div>
@@ -625,6 +637,30 @@
     </div>
 
     <script>
+        // Mobile menu functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('-translate-x-full');
+                sidebarOverlay.classList.toggle('hidden');
+            }
+
+            mobileMenuButton.addEventListener('click', toggleSidebar);
+            sidebarOverlay.addEventListener('click', toggleSidebar);
+
+            // Close sidebar when clicking on a link (mobile)
+            sidebar.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth < 1024) {
+                        toggleSidebar();
+                    }
+                });
+            });
+        });
+
         // Fonction pour afficher les modals
         function showModal(title, message, type = 'info') {
             const modal = document.getElementById('messageModal');
@@ -638,13 +674,13 @@
                 // Appliquer les styles selon le type
                 const header = modal.querySelector('.bg-white');
                 if (type === 'success') {
-                    modalTitle.className = 'text-xl font-bold text-green-900';
+                    modalTitle.className = 'text-lg lg:text-xl font-bold text-green-900';
                 } else if (type === 'error') {
-                    modalTitle.className = 'text-xl font-bold text-red-900';
+                    modalTitle.className = 'text-lg lg:text-xl font-bold text-red-900';
                 } else if (type === 'warning') {
-                    modalTitle.className = 'text-xl font-bold text-yellow-900';
+                    modalTitle.className = 'text-lg lg:text-xl font-bold text-yellow-900';
                 } else {
-                    modalTitle.className = 'text-xl font-bold text-gray-900';
+                    modalTitle.className = 'text-lg lg:text-xl font-bold text-gray-900';
                 }
 
                 modal.classList.remove('hidden');

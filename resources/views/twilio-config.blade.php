@@ -1,7 +1,19 @@
 <x-app-layout>
     <div class="flex h-screen bg-gray-50">
+        <!-- Mobile menu button -->
+        <div class="lg:hidden fixed top-4 left-4 z-50">
+            <button id="mobile-menu-button" class="p-2 bg-white rounded-lg shadow-md">
+                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Sidebar Overlay -->
+        <div id="sidebar-overlay" class="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
+
         <!-- Sidebar -->
-        <aside class="w-64 bg-white border-r border-gray-200">
+        <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 w-64 bg-white border-r border-gray-200 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40">
             <div class="p-6 border-b border-gray-100">
                 <div class="flex items-center space-x-2">
                     <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -52,33 +64,33 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto">
+        <main class="flex-1 overflow-y-auto lg:ml-0">
             <!-- Header -->
             <header class="bg-white border-b border-gray-100">
-                <div class="flex items-center justify-between px-8 py-5">
-                    <div>
-                        <h2 class="text-xl font-bold text-gray-900">Configuration Twilio</h2>
-                        <p class="text-sm text-gray-500 mt-0.5">Configurez vos identifiants Twilio pour WhatsApp</p>
+                <div class="flex items-center justify-between px-4 lg:px-8 py-4 lg:py-5">
+                    <div class="lg:ml-0 ml-12">
+                        <h2 class="text-lg lg:text-xl font-bold text-gray-900">Configuration Twilio</h2>
+                        <p class="text-xs text-gray-500 mt-0.5">Configurez vos identifiants Twilio pour WhatsApp</p>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <div class="text-right mr-4">
+                        <div class="text-right mr-4 hidden sm:block">
                             <p class="text-xs text-gray-500">{{ now()->format('d/m/Y') }}</p>
                             <p class="text-sm font-medium text-gray-700">{{ now()->format('H:i') }}</p>
                         </div>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition flex items-center">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <button type="submit" class="px-3 py-2 lg:px-4 lg:py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition flex items-center">
+                                <svg class="w-4 h-4 mr-1 lg:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                                 </svg>
-                                Déconnexion
+                                <span class="hidden sm:inline">Déconnexion</span>
                             </button>
                         </form>
                     </div>
                 </div>
             </header>
 
-            <div class="p-8">
+            <div class="p-4 lg:p-8">
                 <!-- Success Message -->
                 @if(session('success'))
                     <div class="p-4 mb-6 bg-green-50 border border-green-200 rounded-xl flex items-center animate-fade-in">
@@ -113,16 +125,16 @@
                     </div>
                 @endif
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
                     <!-- Configuration Form -->
                     <div class="lg:col-span-2">
-                        <div class="bg-white rounded-xl border border-gray-100 p-8">
-                            <h3 class="text-xl font-bold text-gray-900 mb-6">Configuration Twilio</h3>
+                        <div class="bg-white rounded-xl border border-gray-100 p-4 lg:p-8">
+                            <h3 class="text-lg lg:text-xl font-bold text-gray-900 mb-4 lg:mb-6">Configuration Twilio</h3>
 
                             <form method="POST" action="{{ route('twilio.saveConfig') }}">
                                 @csrf
 
-                                <div class="space-y-6">
+                                <div class="space-y-4 lg:space-y-6">
                                     <!-- Account SID -->
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -131,7 +143,7 @@
                                         <input type="text" name="account_sid" required
                                                value="{{ old('account_sid', $config->account_sid ?? '') }}"
                                                placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                                               class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                                               class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
                                         <p class="text-xs text-gray-500 mt-1">
                                             Trouvable dans votre dashboard Twilio
                                         </p>
@@ -145,7 +157,7 @@
                                         <input type="password" name="auth_token" required
                                                value="{{ old('auth_token', $config->auth_token ?? '') }}"
                                                placeholder="Votre token d'authentification"
-                                               class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                                               class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
                                         <p class="text-xs text-gray-500 mt-1">
                                             Gardez cette information secrète
                                         </p>
@@ -159,7 +171,7 @@
                                         <input type="text" name="content_sid" required
                                                value="{{ old('content_sid', $config->content_sid ?? '') }}"
                                                placeholder="HXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                                               class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                                               class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
                                         <p class="text-xs text-gray-500 mt-1">
                                             ID de votre template WhatsApp approuvé
                                         </p>
@@ -173,15 +185,15 @@
                                         <input type="text" name="from_number" required
                                                value="{{ old('from_number', $config->from_number ?? '') }}"
                                                placeholder="MGxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                                               class="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                                               class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
                                         <p class="text-xs text-gray-500 mt-1">
                                             ID de votre Messaging Service Twilio
                                         </p>
                                     </div>
 
-                                    <div class="pt-4">
+                                    <div class="pt-2 lg:pt-4">
                                         <button type="submit"
-                                                class="w-full px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                                class="w-full px-4 lg:px-6 py-2.5 lg:py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-sm lg:text-base">
                                             Enregistrer la configuration
                                         </button>
                                     </div>
@@ -191,12 +203,12 @@
                     </div>
 
                     <!-- Instructions -->
-                    <div class="space-y-6">
+                    <div class="space-y-4 lg:space-y-6">
                         <!-- Guide -->
-                        <div class="bg-white rounded-xl border border-gray-100 p-6">
-                            <h4 class="text-lg font-bold text-gray-900 mb-4">Guide d'installation</h4>
+                        <div class="bg-white rounded-xl border border-gray-100 p-4 lg:p-6">
+                            <h4 class="text-base lg:text-lg font-bold text-gray-900 mb-3 lg:mb-4">Guide d'installation</h4>
 
-                            <div class="space-y-4">
+                            <div class="space-y-3 lg:space-y-4">
                                 <div class="flex items-start space-x-3">
                                     <div class="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
                                         1
@@ -249,15 +261,15 @@
 
                         <!-- Current Configuration -->
                         @if($config)
-                        <div class="bg-green-50 border border-green-200 rounded-xl p-6">
-                            <div class="flex items-center mb-3">
+                        <div class="bg-green-50 border border-green-200 rounded-xl p-4 lg:p-6">
+                            <div class="flex items-center mb-2 lg:mb-3">
                                 <svg class="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                                 </svg>
-                                <h4 class="text-lg font-bold text-green-900">Configuration Active</h4>
+                                <h4 class="text-base lg:text-lg font-bold text-green-900">Configuration Active</h4>
                             </div>
 
-                            <div class="space-y-2 text-sm">
+                            <div class="space-y-1 lg:space-y-2 text-xs lg:text-sm">
                                 <div class="flex justify-between">
                                     <span class="text-green-700">Account SID:</span>
                                     <span class="text-green-900 font-mono text-xs">{{ substr($config->account_sid, 0, 10) }}...</span>
@@ -272,19 +284,19 @@
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-green-700">Dernière mise à jour:</span>
-                                    <span class="text-green-900">{{ $config->updated_at->format('d/m/Y H:i') }}</span>
+                                    <span class="text-green-900 text-xs lg:text-sm">{{ $config->updated_at->format('d/m/Y H:i') }}</span>
                                 </div>
                             </div>
                         </div>
                         @else
-                        <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
-                            <div class="flex items-center mb-3">
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 lg:p-6">
+                            <div class="flex items-center mb-2 lg:mb-3">
                                 <svg class="w-5 h-5 text-yellow-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                                 </svg>
-                                <h4 class="text-lg font-bold text-yellow-900">Configuration Requise</h4>
+                                <h4 class="text-base lg:text-lg font-bold text-yellow-900">Configuration Requise</h4>
                             </div>
-                            <p class="text-sm text-yellow-800">
+                            <p class="text-xs lg:text-sm text-yellow-800">
                                 Aucune configuration Twilio active. Veuillez remplir le formulaire pour activer l'envoi de messages WhatsApp.
                             </p>
                         </div>
@@ -292,9 +304,9 @@
 
                         <!-- Test Connection -->
                         @if($config)
-                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
-                            <h4 class="text-lg font-bold text-blue-900 mb-3">Tester la connexion</h4>
-                            <p class="text-sm text-blue-800 mb-4">
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 lg:p-6">
+                            <h4 class="text-base lg:text-lg font-bold text-blue-900 mb-2 lg:mb-3">Tester la connexion</h4>
+                            <p class="text-xs lg:text-sm text-blue-800 mb-3 lg:mb-4">
                                 Vérifiez que votre configuration fonctionne correctement.
                             </p>
                             <a href="{{ route('contacts.index') }}"
@@ -308,6 +320,32 @@
             </div>
         </main>
     </div>
+
+    <script>
+        // Mobile menu functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('-translate-x-full');
+                sidebarOverlay.classList.toggle('hidden');
+            }
+
+            mobileMenuButton.addEventListener('click', toggleSidebar);
+            sidebarOverlay.addEventListener('click', toggleSidebar);
+
+            // Close sidebar when clicking on a link (mobile)
+            sidebar.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth < 1024) {
+                        toggleSidebar();
+                    }
+                });
+            });
+        });
+    </script>
 
     <style>
         @keyframes fade-in {
