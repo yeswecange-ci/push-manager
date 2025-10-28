@@ -130,6 +130,29 @@
                     </div>
                 @endif
 
+                <!-- Error Message -->
+                @if (session('error'))
+                    <div
+                        class="p-4 mb-6 bg-red-50 border border-red-200 rounded-xl flex items-center animate-fade-in">
+                        <div
+                            class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <p class="text-red-900 font-medium text-sm flex-1">{{ session('error') }}</p>
+                        <button onclick="this.parentElement.remove()" class="text-red-600 hover:text-red-800 ml-3">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                @endif
+
                 <!-- Actions Bar -->
                 <div class="bg-white p-4 lg:p-6 rounded-xl border border-gray-100 mb-4 lg:mb-6">
                     <div class="flex flex-col gap-4">
@@ -334,7 +357,7 @@
     <!-- Message Modal -->
     <div id="messageModal"
         class="hidden fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl p-6 lg:p-8 max-w-md w-full mx-4">
+        <div class="bg-white rounded-xl p-6 lg:p-8 max-w-md w-full mx-4 modal-content">
             <div class="flex items-center justify-between mb-4 lg:mb-6">
                 <h3 class="text-lg lg:text-xl font-bold text-gray-900" id="modalTitle">Titre</h3>
                 <button onclick="closeModal('messageModal')" class="text-gray-400 hover:text-gray-600">
@@ -358,13 +381,13 @@
 
     <!-- Add Contact Modal - AMÉLIORÉ -->
     <div id="addModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl p-6 lg:p-8 max-w-md w-full mx-4">
+        <div class="bg-white rounded-xl p-6 lg:p-8 max-w-md w-full mx-4 modal-content">
             <div class="flex items-center justify-between mb-4 lg:mb-6">
                 <h3 class="text-lg lg:text-xl font-bold text-gray-900">Nouveau contact</h3>
                 <button onclick="closeModal('addModal')" class="text-gray-400 hover:text-gray-600">
                     <svg class="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12"></path>
+                            d="M6 18L18-6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
@@ -376,7 +399,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Numéro de téléphone *</label>
                         <input type="text" name="numero_telephone" id="numero_telephone" required
-                            placeholder="0701234567 ou +225701234567"
+                            placeholder="0701234567, +2250701234567, +33612345678, +212612345678, etc."
                             class="w-full px-3 lg:px-4 py-2 lg:py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                         <p class="text-xs text-gray-500 mt-1">L'indicatif +225 sera ajouté automatiquement si absent</p>
                     </div>
@@ -429,16 +452,14 @@
         </div>
     </div>
 
-    <!-- Import CSV Modal -->
-    <div id="importModal"
-        class="hidden fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl p-6 lg:p-8 max-w-md w-full mx-4">
+    <!-- Import CSV Modal avec barre de progression -->
+    <div id="importModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl p-6 lg:p-8 modal-with-progress mx-4 modal-content">
             <div class="flex items-center justify-between mb-4 lg:mb-6">
                 <h3 class="text-lg lg:text-xl font-bold text-gray-900">Importer des contacts</h3>
                 <button onclick="closeModal('importModal')" class="text-gray-400 hover:text-gray-600">
                     <svg class="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
@@ -454,47 +475,57 @@
                 <p class="text-xs text-blue-700 mt-2">L'indicatif +225 sera ajouté automatiquement si absent</p>
             </div>
 
-            <form method="POST" action="{{ route('contacts.import') }}" enctype="multipart/form-data"
-                id="importForm" onsubmit="return submitImportWithProgress(event)">
+            <form method="POST" action="{{ route('contacts.import') }}" enctype="multipart/form-data" id="importForm">
                 @csrf
                 <div class="mb-4 lg:mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-3">Fichier CSV *</label>
-                    <input type="file" name="csv_file" id="csvFile" accept=".csv" required class="hidden"
-                        onchange="updateFileName(this)">
-                    <label for="csvFile"
-                        class="flex flex-col items-center justify-center w-full h-24 lg:h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition">
-                        <svg class="w-8 h-8 lg:w-10 lg:h-10 text-gray-400 mb-1 lg:mb-2" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
-                            </path>
+                    <input type="file" name="csv_file" id="csvFile" accept=".csv" required class="hidden" onchange="updateFileName(this)">
+                    <label for="csvFile" class="flex flex-col items-center justify-center w-full h-24 lg:h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition">
+                        <svg class="w-8 h-8 lg:w-10 lg:h-10 text-gray-400 mb-1 lg:mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                         </svg>
                         <p class="text-xs lg:text-sm font-medium text-gray-600" id="fileLabel">Cliquez pour sélectionner</p>
                         <p class="text-xs text-gray-500 mt-1">CSV uniquement</p>
                     </label>
                 </div>
 
-                <!-- Progress Bar -->
-                <div id="progressBar" class="hidden mb-4 lg:mb-6">
+                <!-- Progress Bar Import -->
+                <div id="importProgressContainer" class="hidden mb-4 lg:mb-6">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-sm font-medium text-gray-700">Importation en cours...</span>
-                        <span class="text-sm font-medium text-indigo-600" id="progressPercent">0%</span>
+                        <span class="text-sm font-medium text-gray-700" id="importProgressText">Importation en cours...</span>
+                        <span class="text-sm font-medium text-indigo-600" id="importProgressPercent">0%</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-2 lg:h-2.5 overflow-hidden">
-                        <div id="progressBarFill"
-                            class="bg-gradient-to-r from-indigo-500 to-purple-600 h-2 lg:h-2.5 rounded-full transition-all duration-500"
-                            style="width: 0%"></div>
+                        <div id="importProgressBar" class="bg-gradient-to-r from-indigo-500 to-purple-600 h-2 lg:h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
                     </div>
-                    <p class="text-xs text-gray-500 mt-2" id="progressMessage">Préparation...</p>
+                    <div class="flex justify-between text-xs text-gray-500 mt-2">
+                        <span id="importProcessed">0</span>
+                        <span id="importTotal">0</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2" id="importProgressMessage">Préparation de l'import...</p>
+
+                    <!-- Détails en temps réel -->
+                    <div id="importDetails" class="mt-3 p-2 bg-gray-50 rounded-lg hidden progress-details">
+                        <div class="flex justify-between text-xs progress-stats">
+                            <span>Contacts importés:</span>
+                            <span id="importSuccessCount" class="text-green-600 font-medium">0</span>
+                        </div>
+                        <div class="flex justify-between text-xs mt-1 progress-stats">
+                            <span>Erreurs:</span>
+                            <span id="importErrorCount" class="text-red-600 font-medium">0</span>
+                        </div>
+                        <div class="flex justify-between text-xs mt-1 progress-stats">
+                            <span>Doublons ignorés:</span>
+                            <span id="importDuplicateCount" class="text-yellow-600 font-medium">0</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="flex gap-2 lg:gap-3">
-                    <button type="submit" id="importButton"
-                        class="flex-1 px-3 lg:px-4 py-2 lg:py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition text-sm lg:text-base">
+                    <button type="button" onclick="startImport()" id="importButton" class="flex-1 px-3 lg:px-4 py-2 lg:py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition text-sm lg:text-base">
                         Importer
                     </button>
-                    <button type="button" onclick="closeModal('importModal')"
-                        class="flex-1 px-3 lg:px-4 py-2 lg:py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition text-sm lg:text-base">
+                    <button type="button" onclick="closeModal('importModal')" class="flex-1 px-3 lg:px-4 py-2 lg:py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition text-sm lg:text-base">
                         Annuler
                     </button>
                 </div>
@@ -503,9 +534,8 @@
     </div>
 
     <!-- Delete Contact Modal -->
-    <div id="deleteModal"
-        class="hidden fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl p-6 lg:p-8 max-w-md w-full mx-4">
+    <div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl p-6 lg:p-8 max-w-md w-full mx-4 modal-content">
             <div class="w-12 h-12 lg:w-16 lg:h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3 lg:mb-4">
                 <svg class="w-6 h-6 lg:w-8 lg:h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -514,11 +544,9 @@
                 </svg>
             </div>
             <h3 class="text-lg lg:text-xl font-bold text-gray-900 text-center mb-2">Confirmer la suppression</h3>
-            <p class="text-xs lg:text-sm text-gray-600 text-center mb-4 lg:mb-6">Êtes-vous sûr de vouloir supprimer ce contact ? Cette
-                action est irréversible.</p>
+            <p class="text-xs lg:text-sm text-gray-600 text-center mb-4 lg:mb-6">Êtes-vous sûr de vouloir supprimer ce contact ? Cette action est irréversible.</p>
 
-            <form id="deleteForm" method="POST"
-                onsubmit="return submitFormWithLoader(event, 'Suppression...', 'Le contact est en cours de suppression')">
+            <form id="deleteForm" method="POST" onsubmit="return submitFormWithLoader(event, 'Suppression...', 'Le contact est en cours de suppression')">
                 @csrf
                 @method('DELETE')
                 <div class="flex gap-2 lg:gap-3">
@@ -536,9 +564,8 @@
     </div>
 
     <!-- Delete Campaign Modal -->
-    <div id="deleteCampaignModal"
-        class="hidden fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl p-6 lg:p-8 max-w-md w-full mx-4">
+    <div id="deleteCampaignModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl p-6 lg:p-8 max-w-md w-full mx-4 modal-content">
             <div class="w-12 h-12 lg:w-16 lg:h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3 lg:mb-4">
                 <svg class="w-6 h-6 lg:w-8 lg:h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -547,17 +574,14 @@
                 </svg>
             </div>
             <h3 class="text-lg lg:text-xl font-bold text-gray-900 text-center mb-2">Supprimer une campagne</h3>
-            <p class="text-xs lg:text-sm text-gray-600 text-center mb-4 lg:mb-6">Tous les contacts de cette campagne seront supprimés.
-                Cette action est irréversible.</p>
+            <p class="text-xs lg:text-sm text-gray-600 text-center mb-4 lg:mb-6">Tous les contacts de cette campagne seront supprimés. Cette action est irréversible.</p>
 
-            <form method="POST" action="{{ route('contacts.deleteCampaign') }}"
-                onsubmit="return submitFormWithLoader(event, 'Suppression de la campagne...', 'Suppression de tous les contacts en cours')">
+            <form method="POST" action="{{ route('contacts.deleteCampaign') }}" onsubmit="return submitFormWithLoader(event, 'Suppression de la campagne...', 'Suppression de tous les contacts en cours')">
                 @csrf
                 @method('DELETE')
                 <div class="mb-4 lg:mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Sélectionner une campagne</label>
-                    <select name="campagne" required
-                        class="w-full px-3 lg:px-4 py-2 lg:py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                    <select name="campagne" required class="w-full px-3 lg:px-4 py-2 lg:py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent">
                         <option value="">Choisir une campagne</option>
                         @foreach ($campagnes as $campagne)
                             <option value="{{ $campagne }}">{{ $campagne }}</option>
@@ -578,58 +602,83 @@
         </div>
     </div>
 
-    <!-- Send to Campaign Modal -->
-    <div id="sendCampaignModal"
-        class="hidden fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl p-6 lg:p-8 max-w-md w-full mx-4">
+    <!-- Send to Campaign Modal avec barre de progression -->
+    <div id="sendCampaignModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl p-6 lg:p-8 modal-with-progress mx-4 modal-content">
             <div class="w-12 h-12 lg:w-16 lg:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 lg:mb-4">
                 <svg class="w-6 h-6 lg:w-8 lg:h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                 </svg>
             </div>
             <h3 class="text-lg lg:text-xl font-bold text-gray-900 text-center mb-2">Envoyer à une campagne</h3>
-            <p class="text-xs lg:text-sm text-gray-600 text-center mb-4 lg:mb-6">Tous les contacts de cette campagne recevront le message
-                WhatsApp</p>
+            <p class="text-xs lg:text-sm text-gray-600 text-center mb-4 lg:mb-6">Tous les contacts de cette campagne recevront le message WhatsApp</p>
 
             <form id="sendCampaignForm">
                 <div class="mb-4 lg:mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Sélectionner une campagne</label>
-                    <select name="campagne" required
-                        class="w-full px-3 lg:px-4 py-2 lg:py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <select name="campagne" id="campagneSelect" required class="w-full px-3 lg:px-4 py-2 lg:py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <option value="">Choisir une campagne</option>
                         @foreach ($campagnes as $campagne)
-                            <option value="{{ $campagne }}">{{ $campagne }}
-                                ({{ \App\Models\MessageWhatsapp::where('nom_campagne', $campagne)->count() }} contacts)
+                            <option value="{{ $campagne }}" data-count="{{ \App\Models\MessageWhatsapp::where('nom_campagne', $campagne)->count() }}">
+                                {{ $campagne }} ({{ \App\Models\MessageWhatsapp::where('nom_campagne', $campagne)->count() }} contacts)
                             </option>
                         @endforeach
                     </select>
                 </div>
 
+                <!-- Progress Bar Envoi -->
+                <div id="sendProgressContainer" class="hidden mb-4 lg:mb-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium text-gray-700" id="sendProgressText">Envoi en cours...</span>
+                        <span class="text-sm font-medium text-indigo-600" id="sendProgressPercent">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 lg:h-2.5 overflow-hidden">
+                        <div id="sendProgressBar" class="bg-gradient-to-r from-blue-500 to-purple-600 h-2 lg:h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500 mt-2">
+                        <span id="sendProcessed">0</span>
+                        <span id="sendTotal">0</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2" id="sendProgressMessage">Préparation de l'envoi...</p>
+
+                    <!-- Détails en temps réel -->
+                    <div id="sendDetails" class="mt-3 p-2 bg-gray-50 rounded-lg hidden progress-details">
+                        <div class="flex justify-between text-xs progress-stats">
+                            <span>Messages envoyés:</span>
+                            <span id="sendSuccessCount" class="text-green-600 font-medium">0</span>
+                        </div>
+                        <div class="flex justify-between text-xs mt-1 progress-stats">
+                            <span>Échecs:</span>
+                            <span id="sendErrorCount" class="text-red-600 font-medium">0</span>
+                        </div>
+                        <div class="flex justify-between text-xs mt-1 progress-stats">
+                            <span>En cours:</span>
+                            <span id="sendPendingCount" class="text-blue-600 font-medium">0</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 lg:p-4 mb-4 lg:mb-6">
                     <div class="flex items-start">
-                        <svg class="w-4 h-4 lg:w-5 lg:h-5 text-yellow-600 mr-2 flex-shrink-0 mt-0.5" fill="currentColor"
-                            viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                                clip-rule="evenodd" />
+                        <svg class="w-4 h-4 lg:w-5 lg:h-5 text-yellow-600 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
                         </svg>
                         <div>
                             <p class="text-sm font-medium text-yellow-900 mb-1">Attention</p>
-                            <p class="text-xs text-yellow-800">Assurez-vous que la configuration Twilio est correcte
-                                avant d'envoyer.</p>
+                            <p class="text-xs text-yellow-800">Assurez-vous que la configuration Twilio est correcte avant d'envoyer.</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="flex gap-2 lg:gap-3">
-                    <button type="button" onclick="closeModal('sendCampaignModal')"
-                        class="flex-1 px-3 lg:px-4 py-2 lg:py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition text-sm lg:text-base">
+                    <button type="button" onclick="closeModal('sendCampaignModal')" id="cancelSendButton" class="flex-1 px-3 lg:px-4 py-2 lg:py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition text-sm lg:text-base">
                         Annuler
                     </button>
-                    <button type="button" onclick="sendCampaign()"
-                        class="flex-1 px-3 lg:px-4 py-2 lg:py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition text-sm lg:text-base">
+                    <button type="button" onclick="startCampaignSend()" id="sendCampaignButton" class="flex-1 px-3 lg:px-4 py-2 lg:py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition text-sm lg:text-base">
                         Envoyer les messages
+                    </button>
+                    <button type="button" onclick="stopCampaignSend()" id="stopSendButton" class="flex-1 px-3 lg:px-4 py-2 lg:py-2.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition text-sm lg:text-base hidden">
+                        Arrêter
                     </button>
                 </div>
             </form>
@@ -637,6 +686,12 @@
     </div>
 
     <script>
+        // Variables globales pour le suivi
+        let importInProgress = false;
+        let sendInProgress = false;
+        let currentImportProcess = null;
+        let currentSendProcess = null;
+
         // Mobile menu functionality
         document.addEventListener('DOMContentLoaded', function() {
             const mobileMenuButton = document.getElementById('mobile-menu-button');
@@ -688,69 +743,108 @@
             }
         }
 
-        // Fonction pour envoyer à un contact
-        function sendToContact(contactId) {
-            showLoader('Envoi en cours...', 'Envoi du message WhatsApp');
+        // Import CSV avec progression
+        async function startImport() {
+            const fileInput = document.getElementById('csvFile');
+            const file = fileInput.files[0];
 
-            // Utilisez la route existante : /twilio/send-contact/{id}
-            fetch(`/twilio/send-contact/${contactId}`, {
+            if (!file) {
+                showModal('Erreur', 'Veuillez sélectionner un fichier CSV', 'error');
+                return;
+            }
+
+            // Préparer l'interface
+            document.getElementById('importProgressContainer').classList.remove('hidden');
+            document.getElementById('importButton').disabled = true;
+            document.getElementById('importButton').classList.add('opacity-50', 'cursor-not-allowed');
+            importInProgress = true;
+
+            // Réinitialiser la progression
+            updateImportProgress(0, 0, 'Lecture du fichier...');
+
+            try {
+                const formData = new FormData();
+                formData.append('csv_file', file);
+                formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+
+                const response = await fetch('/contacts/import', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
-                })
-                .then(async response => {
-                    // Vérifier si c'est du JSON
-                    const contentType = response.headers.get('content-type');
-
-                    if (contentType && contentType.includes('application/json')) {
-                        return response.json();
-                    } else {
-                        const text = await response.text();
-                        console.error('Réponse non-JSON:', text.substring(0, 200));
-                        throw new Error(`Le serveur a retourné: ${response.status} ${response.statusText}`);
-                    }
-                })
-                .then(data => {
-                    hideLoader();
-                    if (data && typeof data === 'object') {
-                        showModal(data.title || (data.success ? 'Succès' : 'Erreur'), data.message, data.type || (data
-                            .success ? 'success' : 'error'));
-
-                        // Recharger la page après 2 secondes si succès
-                        if (data.success) {
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 2000);
-                        }
-                    } else {
-                        throw new Error('Réponse invalide du serveur');
-                    }
-                })
-                .catch(error => {
-                    hideLoader();
-                    console.error('Erreur détaillée:', error);
-                    showModal('Erreur', 'Erreur de communication: ' + error.message, 'error');
+                    body: formData
                 });
+
+                if (!response.ok) {
+                    throw new Error('Erreur lors de l\'import');
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    updateImportProgress(result.total, result.total, 'Import terminé !');
+
+                    // Mettre à jour les compteurs
+                    document.getElementById('importSuccessCount').textContent = result.imported;
+                    document.getElementById('importErrorCount').textContent = result.errors;
+                    document.getElementById('importDuplicateCount').textContent = result.duplicates;
+                    document.getElementById('importDetails').classList.remove('hidden');
+
+                    showModal('Succès', result.message, 'success');
+
+                    // Recharger la page après 2 secondes
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    throw new Error(result.message || 'Erreur lors de l\'import');
+                }
+
+            } catch (error) {
+                showModal('Erreur', 'Erreur lors de l\'import: ' + error.message, 'error');
+            } finally {
+                importInProgress = false;
+                document.getElementById('importButton').disabled = false;
+                document.getElementById('importButton').classList.remove('opacity-50', 'cursor-not-allowed');
+            }
         }
 
-        // Fonction pour envoyer une campagne
-        function sendCampaign() {
-            const form = document.getElementById('sendCampaignForm');
-            const formData = new FormData(form);
-            const campagne = formData.get('campagne');
+        // Mise à jour de la progression de l'import
+        function updateImportProgress(processed, total, message) {
+            const percent = total > 0 ? Math.round((processed / total) * 100) : 0;
+
+            document.getElementById('importProgressBar').style.width = percent + '%';
+            document.getElementById('importProgressPercent').textContent = percent + '%';
+            document.getElementById('importProcessed').textContent = processed;
+            document.getElementById('importTotal').textContent = total;
+            document.getElementById('importProgressMessage').textContent = message;
+        }
+
+        // Envoi de campagne avec progression
+        async function startCampaignSend() {
+            const campagneSelect = document.getElementById('campagneSelect');
+            const campagne = campagneSelect.value;
+            const totalContacts = parseInt(campagneSelect.selectedOptions[0]?.getAttribute('data-count') || 0);
 
             if (!campagne) {
                 showModal('Erreur', 'Veuillez sélectionner une campagne', 'error');
                 return;
             }
 
-            showLoader('Envoi de campagne...', 'Envoi des messages à tous les contacts');
+            if (totalContacts === 0) {
+                showModal('Erreur', 'Cette campagne ne contient aucun contact', 'error');
+                return;
+            }
 
-            // Utilisez la route existante : /twilio/send-campaign
-            fetch('/twilio/send-campaign', {
+            // Préparer l'interface
+            document.getElementById('sendProgressContainer').classList.remove('hidden');
+            document.getElementById('sendCampaignButton').classList.add('hidden');
+            document.getElementById('stopSendButton').classList.remove('hidden');
+            document.getElementById('cancelSendButton').disabled = true;
+            sendInProgress = true;
+
+            // Réinitialiser la progression
+            updateSendProgress(0, totalContacts, 'Démarrage de l\'envoi...');
+
+            try {
+                const response = await fetch('/twilio/send-campaign', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -760,11 +854,88 @@
                     body: JSON.stringify({
                         campagne: campagne
                     })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erreur lors de l\'envoi');
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    updateSendProgress(totalContacts, totalContacts, 'Envoi terminé !');
+
+                    let message = result.message;
+                    if (result.statistics) {
+                        message += `\n\nStatistiques:\n`;
+                        message += `• Total: ${result.statistics.total}\n`;
+                        message += `• Succès: ${result.statistics.success}\n`;
+                        message += `• Échecs: ${result.statistics.errors}`;
+
+                        // Mettre à jour les compteurs
+                        document.getElementById('sendSuccessCount').textContent = result.statistics.success;
+                        document.getElementById('sendErrorCount').textContent = result.statistics.errors;
+                        document.getElementById('sendPendingCount').textContent = '0';
+                        document.getElementById('sendDetails').classList.remove('hidden');
+                    }
+
+                    showModal('Succès', message, 'success');
+
+                    // Recharger la page après 3 secondes
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
+                } else {
+                    throw new Error(result.message || 'Erreur lors de l\'envoi');
+                }
+
+            } catch (error) {
+                showModal('Erreur', 'Erreur lors de l\'envoi: ' + error.message, 'error');
+            } finally {
+                sendInProgress = false;
+                document.getElementById('sendCampaignButton').classList.remove('hidden');
+                document.getElementById('stopSendButton').classList.add('hidden');
+                document.getElementById('cancelSendButton').disabled = false;
+            }
+        }
+
+        // Arrêter l'envoi
+        function stopCampaignSend() {
+            if (currentSendProcess) {
+                currentSendProcess.cancel();
+            }
+            sendInProgress = false;
+            document.getElementById('sendProgressMessage').textContent = 'Envoi arrêté';
+            document.getElementById('sendCampaignButton').classList.remove('hidden');
+            document.getElementById('stopSendButton').classList.add('hidden');
+            document.getElementById('cancelSendButton').disabled = false;
+        }
+
+        // Mise à jour de la progression de l'envoi
+        function updateSendProgress(processed, total, message) {
+            const percent = total > 0 ? Math.round((processed / total) * 100) : 0;
+
+            document.getElementById('sendProgressBar').style.width = percent + '%';
+            document.getElementById('sendProgressPercent').textContent = percent + '%';
+            document.getElementById('sendProcessed').textContent = processed;
+            document.getElementById('sendTotal').textContent = total;
+            document.getElementById('sendProgressMessage').textContent = message;
+        }
+
+        // Fonction pour envoyer à un contact
+        function sendToContact(contactId) {
+            showLoader('Envoi en cours...', 'Envoi du message WhatsApp');
+
+            fetch(`/twilio/send-contact/${contactId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
                 })
                 .then(async response => {
-                    // Vérifier si c'est du JSON
                     const contentType = response.headers.get('content-type');
-
                     if (contentType && contentType.includes('application/json')) {
                         return response.json();
                     } else {
@@ -775,23 +946,13 @@
                 })
                 .then(data => {
                     hideLoader();
-                    closeModal('sendCampaignModal');
-
                     if (data && typeof data === 'object') {
-                        if (data.success) {
-                            let message = data.message;
-                            if (data.statistics) {
-                                message +=
-                                    `\nTotal: ${data.statistics.total} | Succès: ${data.statistics.success} | Erreurs: ${data.statistics.errors}`;
-                            }
-                            showModal(data.title, message, data.type);
+                        showModal(data.title || (data.success ? 'Succès' : 'Erreur'), data.message, data.type || (data.success ? 'success' : 'error'));
 
-                            // Recharger la page après 3 secondes
+                        if (data.success) {
                             setTimeout(() => {
                                 window.location.reload();
-                            }, 3000);
-                        } else {
-                            showModal(data.title, data.message, data.type);
+                            }, 2000);
                         }
                     } else {
                         throw new Error('Réponse invalide du serveur');
@@ -818,9 +979,26 @@
                 modal.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
 
-                // Réinitialiser le modal d'ajout quand il s'ouvre
+                // Scroll vers le haut du modal
+                const modalContent = modal.querySelector('.modal-content');
+                if (modalContent) {
+                    modalContent.scrollTop = 0;
+                }
+
+                // Réinitialiser les modals
                 if (modalId === 'addModal') {
                     resetAddModal();
+                } else if (modalId === 'importModal') {
+                    document.getElementById('importProgressContainer').classList.add('hidden');
+                    document.getElementById('importDetails').classList.add('hidden');
+                    document.getElementById('importButton').disabled = false;
+                    document.getElementById('importButton').classList.remove('opacity-50', 'cursor-not-allowed');
+                } else if (modalId === 'sendCampaignModal') {
+                    document.getElementById('sendProgressContainer').classList.add('hidden');
+                    document.getElementById('sendDetails').classList.add('hidden');
+                    document.getElementById('sendCampaignButton').classList.remove('hidden');
+                    document.getElementById('stopSendButton').classList.add('hidden');
+                    document.getElementById('cancelSendButton').disabled = false;
                 }
             }
         }
@@ -842,7 +1020,6 @@
 
         // Gestion du switch campagne existante/nouvelle campagne
         function resetAddModal() {
-            // Par défaut, on montre la sélection de campagne existante
             document.getElementById('campagneSelectContainer').classList.remove('hidden');
             document.getElementById('campagneInputContainer').classList.add('hidden');
             document.getElementById('switchToSelect').classList.add('bg-indigo-600', 'text-white');
@@ -878,27 +1055,22 @@
 
         // Gestion du formulaire d'ajout - préparation des données
         document.getElementById('addContactForm')?.addEventListener('submit', function(e) {
-            // Déterminer quelle valeur de campagne utiliser
             const campagneSelect = document.getElementById('campagne_existante');
             const campagneInput = document.getElementById('nom_campagne');
 
             let campagneValue = '';
             if (document.getElementById('campagneSelectContainer').classList.contains('hidden')) {
-                // Mode saisie manuelle
                 campagneValue = campagneInput.value;
             } else {
-                // Mode sélection
                 campagneValue = campagneSelect.value;
             }
 
-            // Valider qu'une campagne est sélectionnée/saisie
             if (!campagneValue) {
                 e.preventDefault();
                 showModal('Erreur', 'Veuillez sélectionner ou saisir un nom de campagne', 'error');
                 return;
             }
 
-            // Créer un champ hidden pour envoyer la valeur finale
             const hiddenInput = document.createElement('input');
             hiddenInput.type = 'hidden';
             hiddenInput.name = 'nom_campagne';
@@ -939,7 +1111,6 @@
 
         // Global Loader
         function showLoader(title = 'Chargement...', message = 'Veuillez patienter') {
-            // Fermer tous les modals d'abord
             document.querySelectorAll('[id$="Modal"]').forEach(modal => {
                 modal.classList.add('hidden');
             });
@@ -985,14 +1156,6 @@
             }
         }
 
-        // Import with progress bar
-        function submitImportWithProgress(event) {
-            event.preventDefault();
-            submitFormWithLoader(event, 'Importation...', 'Traitement du fichier CSV');
-            event.target.submit();
-            return true;
-        }
-
         // Auto-hide success message after 5 seconds
         document.addEventListener('DOMContentLoaded', function() {
             const successMessage = document.querySelector('.animate-fade-in');
@@ -1010,11 +1173,9 @@
 
         // Keyboard shortcuts
         document.addEventListener('keydown', function(e) {
-            // Escape to close modals
             if (e.key === 'Escape') {
                 const loader = document.getElementById('globalLoader');
                 if (loader && !loader.classList.contains('hidden')) {
-                    // Ne pas fermer le loader avec Escape - il doit être fermé programmatiquement
                     return;
                 }
 
@@ -1037,7 +1198,6 @@
                 opacity: 0;
                 transform: translateY(-10px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -1068,6 +1228,48 @@
 
         ::-webkit-scrollbar-thumb:hover {
             background: #a0aec0;
+        }
+
+        /* Styles pour les modals avec progression - plus larges sur mobile */
+        .modal-with-progress {
+            max-width: 28rem !important; /* 448px */
+            width: 90vw !important;
+        }
+
+        @media (min-width: 640px) {
+            .modal-with-progress {
+                max-width: 32rem !important; /* 512px */
+                width: 95vw !important;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .modal-with-progress {
+                max-width: 36rem !important; /* 576px */
+                width: auto !important;
+            }
+        }
+
+        /* Assurer que le modal ne dépasse pas l'écran */
+        .modal-content {
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        /* Styles spécifiques pour les barres de progression */
+        .progress-details {
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .progress-stats {
+            font-size: 0.7rem;
+        }
+
+        @media (min-width: 640px) {
+            .progress-stats {
+                font-size: 0.75rem;
+            }
         }
     </style>
 </x-app-layout>

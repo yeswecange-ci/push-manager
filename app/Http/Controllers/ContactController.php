@@ -1,10 +1,11 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\MessageWhatsapp;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use libphonenumber\PhoneNumberUtil;
+use libphonenumber\PhoneNumberFormat;
+use libphonenumber\NumberParseException;
 
 class ContactController extends Controller
 {
@@ -41,16 +42,16 @@ class ContactController extends Controller
     {
         $validated = $request->validate([
             'numero_telephone' => 'required|string',
-            'nom_campagne' => 'required|string',
+            'nom_campagne'     => 'required|string',
         ]);
 
         // Formater le numéro de téléphone CORRECTEMENT
         $phoneNumber = $this->formatPhoneNumber($validated['numero_telephone']);
 
         // Vérifier que le format est valide
-        if (!$this->isValidPhoneNumber($phoneNumber)) {
+        if (! $this->isValidPhoneNumber($phoneNumber)) {
             return redirect()->route('contacts.index')
-                ->with('error', 'Numéro de téléphone invalide. Format attendu: 07 01 23 45 67 ou +225 07 01 23 45 67');
+                ->with('error', 'Numéro de téléphone invalide. Formats acceptés: 07 01 23 45 67, +225 07 01 23 45 67, +33612345678, +212612345678');
         }
 
         // Vérifier si le numéro existe déjà dans cette campagne
@@ -67,7 +68,7 @@ class ContactController extends Controller
             // Créer le contact avec le numéro formaté
             MessageWhatsapp::create([
                 'numero_telephone' => $phoneNumber,
-                'nom_campagne' => $validated['nom_campagne'],
+                'nom_campagne'     => $validated['nom_campagne'],
             ]);
 
             return redirect()->route('contacts.index')
@@ -85,22 +86,22 @@ class ContactController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'csv_file' => 'required|file|mimes:csv,txt'
+            'csv_file' => 'required|file|mimes:csv,txt',
         ]);
 
         try {
-            $file = $request->file('csv_file');
+            $file    = $request->file('csv_file');
             $csvData = array_map('str_getcsv', file($file));
 
-            $imported = 0;
-            $errors = [];
+            $imported   = 0;
+            $errors     = [];
+            $duplicates = 0;
 
             // Supprimer l'en-tête si présent
             if (count($csvData) > 0) {
-                $header = $csvData[0];
+                $header    = $csvData[0];
                 $hasHeader = false;
 
-                // Vérifier si la première ligne contient des en-têtes
                 foreach ($header as $cell) {
                     if (str_contains(strtolower($cell), 'numero') || str_contains(strtolower($cell), 'campagne')) {
                         $hasHeader = true;
@@ -109,40 +110,44 @@ class ContactController extends Controller
                 }
 
                 if ($hasHeader) {
-                    array_shift($csvData); // Supprimer l'en-tête
+                    array_shift($csvData);
                 }
             }
 
+            $total     = count($csvData);
+            $processed = 0;
+
             foreach ($csvData as $index => $row) {
+                $processed++;
+
                 if (count($row) >= 2) {
-                    $numero = trim($row[0]);
+                    $numero   = trim($row[0]);
                     $campagne = trim($row[1]);
 
-                    // Ignorer les lignes vides
                     if (empty($numero) || empty($campagne)) {
+                        $errors[] = "Ligne " . ($index + 1) . ": Données manquantes";
                         continue;
                     }
 
-                    // Formater le numéro
                     $formattedNumero = $this->formatPhoneNumber($numero);
 
-                    if ($this->isValidPhoneNumber($formattedNumero) && !empty($campagne)) {
-                        // Vérifier si le contact existe déjà
+                    if ($this->isValidPhoneNumber($formattedNumero) && ! empty($campagne)) {
                         $exists = MessageWhatsapp::where('numero_telephone', $formattedNumero)
                             ->where('nom_campagne', $campagne)
                             ->exists();
 
-                        if (!$exists) {
+                        if (! $exists) {
                             MessageWhatsapp::create([
                                 'numero_telephone' => $formattedNumero,
-                                'nom_campagne' => $campagne,
+                                'nom_campagne'     => $campagne,
                             ]);
                             $imported++;
                         } else {
-                            $errors[] = "Ligne " . ($index + 1) . ": Le contact $numero existe déjà dans la campagne $campagne";
+                            $duplicates++;
+                            $errors[] = "Ligne " . ($index + 1) . ": Doublon - $numero dans $campagne";
                         }
                     } else {
-                        $errors[] = "Ligne " . ($index + 1) . ": Format invalide - $numero -> $campagne";
+                        $errors[] = "Ligne " . ($index + 1) . ": Format invalide - $numero";
                     }
                 } else {
                     $errors[] = "Ligne " . ($index + 1) . ": Format de ligne invalide";
@@ -150,23 +155,28 @@ class ContactController extends Controller
             }
 
             $message = "$imported contacts importés avec succès.";
-            if (!empty($errors)) {
-                if (count($errors) > 10) {
-                    $message .= " " . count($errors) . " erreurs (affichage limité aux 10 premières).";
-                    $errors = array_slice($errors, 0, 10);
-                } else {
-                    $message .= " " . count($errors) . " erreurs.";
-                }
-
-                // Stocker les erreurs détaillées en session
-                session(['import_errors' => $errors]);
+            if ($duplicates > 0) {
+                $message .= " $duplicates doublons ignorés.";
+            }
+            if (! empty($errors)) {
+                $message .= " " . count($errors) . " erreurs.";
             }
 
-            return redirect()->route('contacts.index')->with('success', $message);
+            return response()->json([
+                'success'    => true,
+                'message'    => $message,
+                'imported'   => $imported,
+                'errors'     => count($errors),
+                'duplicates' => $duplicates,
+                'total'      => $total,
+                'processed'  => $processed,
+            ]);
 
         } catch (\Exception $e) {
-            return redirect()->route('contacts.index')
-                ->with('error', 'Erreur lors de l\'import: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de l\'import: ' . $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -194,7 +204,7 @@ class ContactController extends Controller
     public function deleteCampaign(Request $request)
     {
         $request->validate([
-            'campagne' => 'required|string'
+            'campagne' => 'required|string',
         ]);
 
         try {
@@ -217,55 +227,141 @@ class ContactController extends Controller
     }
 
     /**
-     * Formate le numéro de téléphone correctement
-     * Ne supprime PAS le premier zéro
+     * Formate le numéro de téléphone correctement avec support international
      */
     private function formatPhoneNumber($phoneNumber)
     {
-        // Supprimer tous les caractères non numériques
-        $cleaned = preg_replace('/[^0-9]/', '', $phoneNumber);
+        try {
+            $phoneUtil = PhoneNumberUtil::getInstance();
 
-        // Si le numéro commence déjà par 225 (sans le +) et a 12 chiffres
-        if (strlen($cleaned) === 12 && substr($cleaned, 0, 3) === '225') {
-            return '+' . $cleaned;
+            // Essayer de parser le numéro
+            $numberProto = $phoneUtil->parse($phoneNumber, null);
+
+            // Vérifier si le numéro est valide
+            if ($phoneUtil->isValidNumber($numberProto)) {
+                // Retourner au format E.164 international
+                return $phoneUtil->format($numberProto, PhoneNumberFormat::E164);
+            }
+        } catch (NumberParseException $e) {
+            // En cas d'erreur de parsing, essayer notre méthode de fallback
         }
 
-        // Si le numéro a 10 chiffres et commence par 0 (format local: 07 01 23 45 67)
+        // Fallback pour les numéros qui ne peuvent pas être parsés par libphonenumber
+        return $this->formatPhoneNumberFallback($phoneNumber);
+    }
+
+    /**
+     * Méthode de fallback pour formater les numéros manuellement
+     */
+    private function formatPhoneNumberFallback($phoneNumber)
+    {
+        // Supprimer tous les caractères non numériques sauf le +
+        $cleaned = preg_replace('/[^0-9+]/', '', $phoneNumber);
+
+        // Si le numéro commence par +, le retourner tel quel (déjà au format international)
+        if (str_starts_with($cleaned, '+')) {
+            return $cleaned;
+        }
+
+        // Gestion spécifique pour la Côte d'Ivoire
         if (strlen($cleaned) === 10 && substr($cleaned, 0, 1) === '0') {
             return '+225' . $cleaned; // Garde le 0! Résultat: +2250701234567
         }
 
-        // Si le numéro a 9 chiffres (sans le 0 initial)
         if (strlen($cleaned) === 9) {
             return '+2250' . $cleaned; // Ajoute le 0! Résultat: +2250701234567
         }
 
-        // Si le numéro a 13 chiffres et commence par +225
-        if (strlen($cleaned) === 13 && substr($cleaned, 0, 4) === '2250') {
+        // Gestion pour la France
+        if (strlen($cleaned) === 10 && substr($cleaned, 0, 1) === '0') {
+            return '+33' . substr($cleaned, 1); // +33612345678
+        }
+
+        if (strlen($cleaned) === 9 && !str_starts_with($cleaned, '0')) {
+            return '+33' . $cleaned; // +33612345678
+        }
+
+        // Gestion pour le Maroc
+        if (strlen($cleaned) === 10 && substr($cleaned, 0, 1) === '0') {
+            return '+212' . substr($cleaned, 1); // +212612345678
+        }
+
+        if (strlen($cleaned) === 9 && !str_starts_with($cleaned, '0')) {
+            return '+212' . $cleaned; // +212612345678
+        }
+
+        // Pour les autres cas, essayer d'ajouter le + s'il manque
+        if (!str_starts_with($cleaned, '+') && strlen($cleaned) >= 10) {
             return '+' . $cleaned;
         }
 
-        // Si le numéro est déjà au format international complet
-        if (strlen($cleaned) > 13 && substr($cleaned, 0, 4) === '2250') {
-            return '+' . $cleaned;
-        }
-
-        // Pour tous les autres cas, on retourne le numéro original
-        // Le système essaiera de le traiter tel quel
+        // Retourner le numéro original si on ne peut pas le formater
         return $phoneNumber;
     }
 
     /**
-     * Valide le format du numéro de téléphone
+     * Valide le format du numéro de téléphone avec support international
      */
     private function isValidPhoneNumber($phoneNumber)
     {
-        // Regex pour valider les formats:
-        // +2250701234567 (13 chiffres avec indicatif et 0)
-        // +225701234567 (12 chiffres avec indicatif mais sans le 0 - moins courant)
-        $pattern = '/^\+225(0)?[1-9]\d{7,8}$/';
+        try {
+            $phoneUtil = PhoneNumberUtil::getInstance();
+            $numberProto = $phoneUtil->parse($phoneNumber, null);
+            return $phoneUtil->isValidNumber($numberProto);
+        } catch (NumberParseException $e) {
+            // Fallback vers la validation regex pour les cas simples
+            return $this->isValidPhoneNumberFallback($phoneNumber);
+        }
+    }
 
-        return preg_match($pattern, $phoneNumber) === 1;
+    /**
+     * Validation fallback avec regex pour les numéros internationaux
+     */
+    private function isValidPhoneNumberFallback($phoneNumber)
+    {
+        // Regex pour valider les formats internationaux E.164
+        // +2250701234567, +33612345678, +212612345678, etc.
+        $pattern = '/^\+\d{1,4}\d{6,14}$/';
+
+        // Vérifier le format de base
+        if (preg_match($pattern, $phoneNumber) !== 1) {
+            return false;
+        }
+
+        // Vérifications spécifiques par pays
+        $countryChecks = [
+            // Côte d'Ivoire: +225 suivi de 10 chiffres (avec le 0)
+            '/^\+2250[1-9]\d{7}$/' => 'Côte d\'Ivoire',
+
+            // France: +33 suivi de 9 chiffres (sans le 0)
+            '/^\+33[1-9]\d{8}$/' => 'France',
+
+            // Maroc: +212 suivi de 9 chiffres (sans le 0)
+            '/^\+212[1-9]\d{8}$/' => 'Maroc',
+
+            // Belgique: +32 suivi de 9 chiffres
+            '/^\+32[1-9]\d{8}$/' => 'Belgique',
+
+            // Suisse: +41 suivi de 9 chiffres
+            '/^\+41[1-9]\d{8}$/' => 'Suisse',
+
+            // Sénégal: +221 suivi de 9 chiffres
+            '/^\+221[1-9]\d{8}$/' => 'Sénégal',
+
+            // Cameroun: +237 suivi de 8 chiffres
+            '/^\+237[1-9]\d{7}$/' => 'Cameroun',
+
+            // Format générique pour la plupart des pays
+            '/^\+\d{1,4}[1-9]\d{5,13}$/' => 'Générique'
+        ];
+
+        foreach ($countryChecks as $pattern => $country) {
+            if (preg_match($pattern, $phoneNumber) === 1) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -291,5 +387,25 @@ class ContactController extends Controller
             ->orderBy('created_at', 'desc')
             ->limit($limit)
             ->get();
+    }
+
+    /**
+     * Détecte le pays d'un numéro de téléphone
+     */
+    public function detectCountry($phoneNumber)
+    {
+        try {
+            $phoneUtil = PhoneNumberUtil::getInstance();
+            $numberProto = $phoneUtil->parse($phoneNumber, null);
+
+            if ($phoneUtil->isValidNumber($numberProto)) {
+                $regionCode = $phoneUtil->getRegionCodeForNumber($numberProto);
+                return $regionCode ?: 'INCONNU';
+            }
+        } catch (NumberParseException $e) {
+            // Ne rien faire
+        }
+
+        return 'INCONNU';
     }
 }
