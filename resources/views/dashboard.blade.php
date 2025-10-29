@@ -1192,7 +1192,7 @@
         }
 
         .action-button.secondary {
-            background-color: var(--green-600);
+            background-color: var(--green-600) !important;
             color: var(--white);
         }
 
