@@ -11,10 +11,10 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
 
-    <!-- Styles & Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <!-- Build assets -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'], build: true)
 
-    {{-- Force toutes les requêtes à passer en HTTPS --}}
+    <!-- Force le HTTPS même si l’utilisateur entre en HTTP -->
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 </head>
 <body class="font-sans antialiased bg-gray-50">
