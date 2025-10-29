@@ -12,7 +12,7 @@
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
 
     <!-- Build assets -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'], build: true)
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Force le HTTPS même si l’utilisateur entre en HTTP -->
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
