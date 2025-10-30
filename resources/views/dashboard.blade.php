@@ -110,7 +110,7 @@
                     </div>
                 @endif
 
-                <!-- Statistics Cards -->
+                <!-- Statistics Cards - LIGNE 1 -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
                     <div class="bg-white p-4 lg:p-6 rounded-xl border border-gray-100 hover:shadow-md transition-shadow">
                         <div class="flex items-center justify-between mb-3 lg:mb-4">
@@ -165,30 +165,75 @@
                     </div>
                 </div>
 
+                <!-- Statistics Cards - LIGNE 2 (Statistiques des Pushs) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
+                    <div class="bg-gradient-to-br from-orange-50 to-orange-100 p-4 lg:p-6 rounded-xl border border-orange-200 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-3 lg:mb-4">
+                            <div class="w-10 h-10 lg:w-12 lg:h-12 bg-white rounded-xl flex items-center justify-center">
+                                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                </svg>
+                            </div>
+                            <span class="px-2 py-1 lg:px-3 lg:py-1 bg-white text-orange-600 text-xs font-semibold rounded-full">Total</span>
+                        </div>
+                        <p class="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">{{ number_format($totalPushs) }}</p>
+                        <p class="text-xs lg:text-sm text-gray-700">Pushs effectués (total)</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 lg:p-6 rounded-xl border border-emerald-200 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-3 lg:mb-4">
+                            <div class="w-10 h-10 lg:w-12 lg:h-12 bg-white rounded-xl flex items-center justify-center">
+                                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <span class="px-2 py-1 lg:px-3 lg:py-1 bg-white text-emerald-600 text-xs font-semibold rounded-full">Réussis</span>
+                        </div>
+                        <p class="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">{{ number_format($successfulPushs) }}</p>
+                        <p class="text-xs lg:text-sm text-gray-700">Pushs réussis</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-sky-50 to-sky-100 p-4 lg:p-6 rounded-xl border border-sky-200 hover:shadow-md transition-shadow">
+                        <div class="flex items-center justify-between mb-3 lg:mb-4">
+                            <div class="w-10 h-10 lg:w-12 lg:h-12 bg-white rounded-xl flex items-center justify-center">
+                                <svg class="w-5 h-5 lg:w-6 lg:h-6 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <span class="px-2 py-1 lg:px-3 lg:py-1 bg-white text-sky-600 text-xs font-semibold rounded-full">Aujourd'hui</span>
+                        </div>
+                        <p class="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">{{ number_format($todayPushs) }}</p>
+                        <p class="text-xs lg:text-sm text-gray-700">Pushs aujourd'hui ({{ $todaySuccessful }} réussis)</p>
+                    </div>
+                </div>
+
                 <!-- Campaign Statistics -->
                 @if($campaignStats->count() > 0)
                 <div class="bg-white p-4 lg:p-6 rounded-xl border border-gray-100 mb-6 lg:mb-8">
                     <h3 class="text-base lg:text-lg font-bold text-gray-900 mb-4">Statistiques par Campagne</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
                         @foreach($campaignStats as $stat)
-                        <div class="border border-gray-200 rounded-lg p-3 lg:p-4">
-                            <h4 class="font-semibold text-gray-900 text-sm lg:text-base mb-2">{{ $stat->nom_campagne }}</h4>
-                            <div class="flex justify-between text-xs lg:text-sm">
-                                <span class="text-gray-600">Contacts:</span>
-                                <span class="font-semibold">{{ $stat->total_contacts }}</span>
-                            </div>
-                            <div class="flex justify-between text-xs lg:text-sm">
-                                <span class="text-gray-600">Envoyés:</span>
-                                <span class="font-semibold text-green-600">{{ $stat->sent_messages }}</span>
-                            </div>
-                            @php
-                                $rate = $stat->total_contacts > 0 ? round(($stat->sent_messages / $stat->total_contacts) * 100, 1) : 0;
-                            @endphp
-                            <div class="flex justify-between text-xs lg:text-sm">
-                                <span class="text-gray-600">Taux:</span>
-                                <span class="font-semibold {{ $rate >= 80 ? 'text-green-600' : ($rate >= 50 ? 'text-yellow-600' : 'text-red-600') }}">
-                                    {{ $rate }}%
-                                </span>
+                        <div class="border border-gray-200 rounded-lg p-3 lg:p-4 hover:shadow-md transition">
+                            <h4 class="font-semibold text-gray-900 text-sm lg:text-base mb-3">{{ $stat->nom_campagne }}</h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-xs lg:text-sm">
+                                    <span class="text-gray-600">Total pushs:</span>
+                                    <span class="font-semibold text-gray-900">{{ $stat->total_pushs }}</span>
+                                </div>
+                                <div class="flex justify-between text-xs lg:text-sm">
+                                    <span class="text-gray-600">Réussis:</span>
+                                    <span class="font-semibold text-green-600">{{ $stat->successful_pushs }}</span>
+                                </div>
+                                <div class="flex justify-between text-xs lg:text-sm">
+                                    <span class="text-gray-600">Échoués:</span>
+                                    <span class="font-semibold text-red-600">{{ $stat->failed_pushs }}</span>
+                                </div>
+                                <div class="flex justify-between text-xs lg:text-sm pt-2 border-t border-gray-200">
+                                    <span class="text-gray-600">Taux de réussite:</span>
+                                    <span class="font-bold {{ $stat->success_rate >= 80 ? 'text-green-600' : ($stat->success_rate >= 50 ? 'text-yellow-600' : 'text-red-600') }}">
+                                        {{ $stat->success_rate }}%
+                                    </span>
+                                </div>
                             </div>
                         </div>
                         @endforeach
@@ -196,58 +241,121 @@
                 </div>
                 @endif
 
-                <!-- Recent Contacts -->
-                @if($recentContacts->count() > 0)
-                <div class="bg-white p-4 lg:p-6 rounded-xl border border-gray-100">
-                    <h3 class="text-base lg:text-lg font-bold text-gray-900 mb-4">Contacts Récents</h3>
+                <!-- Recent Push Logs -->
+                @if($recentPushs->count() > 0)
+                <div class="bg-white p-4 lg:p-6 rounded-xl border border-gray-100 mb-6 lg:mb-8">
+                    <h3 class="text-base lg:text-lg font-bold text-gray-900 mb-4">Derniers Pushs Effectués</h3>
                     <div class="overflow-x-auto">
-                        <table class="w-full min-w-[500px]">
+                        <table class="w-full min-w-[600px]">
                             <thead class="bg-gray-50">
                                 <tr>
+                                    <th class="px-3 py-2 lg:px-4 lg:py-3 text-left text-xs font-semibold text-gray-600 uppercase">ID Push</th>
                                     <th class="px-3 py-2 lg:px-4 lg:py-3 text-left text-xs font-semibold text-gray-600 uppercase">Numéro</th>
                                     <th class="px-3 py-2 lg:px-4 lg:py-3 text-left text-xs font-semibold text-gray-600 uppercase">Campagne</th>
-                                    <th class="px-3 py-2 lg:px-4 lg:py-3 text-left text-xs font-semibold text-gray-600 uppercase">Date</th>
+                                    <th class="px-3 py-2 lg:px-4 lg:py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+                                    <th class="px-3 py-2 lg:px-4 lg:py-3 text-left text-xs font-semibold text-gray-600 uppercase">Date/Heure</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100">
-                                @foreach($recentContacts as $contact)
+                            <tbody class="divide-y divide-gray-200">
+                                @foreach($recentPushs as $push)
                                 <tr class="hover:bg-gray-50 transition">
-                                    <td class="px-3 py-2 lg:px-4 lg:py-3 whitespace-nowrap">
-                                        <span class="text-sm font-semibold text-gray-900">{{ $contact->numero_telephone }}</span>
+                                    <td class="px-3 py-2 lg:px-4 lg:py-3 text-xs lg:text-sm text-gray-900 font-mono">
+                                        #{{ $push->id }}
                                     </td>
-                                    <td class="px-3 py-2 lg:px-4 lg:py-3 whitespace-nowrap">
-                                        <span class="px-2 py-1 text-xs font-semibold text-indigo-700 bg-indigo-50 rounded">
-                                            {{ $contact->nom_campagne }}
+                                    <td class="px-3 py-2 lg:px-4 lg:py-3 text-xs lg:text-sm text-gray-900">
+                                        {{ $push->numero_telephone }}
+                                    </td>
+                                    <td class="px-3 py-2 lg:px-4 lg:py-3 text-xs lg:text-sm text-gray-600">
+                                        {{ $push->nom_campagne }}
+                                    </td>
+                                    <td class="px-3 py-2 lg:px-4 lg:py-3">
+                                        @if($push->status === 'success')
+                                        <span class="inline-flex items-center px-2 py-1 bg-green-50 text-green-700 text-xs font-medium rounded-full">
+                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                            </svg>
+                                            Réussi
                                         </span>
+                                        @else
+                                        <span class="inline-flex items-center px-2 py-1 bg-red-50 text-red-700 text-xs font-medium rounded-full">
+                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                            </svg>
+                                            Échoué
+                                        </span>
+                                        @endif
                                     </td>
-                                    <td class="px-3 py-2 lg:px-4 lg:py-3 whitespace-nowrap text-xs lg:text-sm text-gray-600">
-                                        {{ $contact->created_at->format('d/m/Y H:i') }}
+                                    <td class="px-3 py-2 lg:px-4 lg:py-3 text-xs lg:text-sm text-gray-500">
+                                        {{ $push->sent_at->format('d/m/Y H:i') }}
                                     </td>
                                 </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
+
+                    @if($recentPushs->count() >= 10)
+                    <div class="mt-4 flex justify-center">
+                        <a href="#" class="px-4 py-2 bg-indigo-50 text-indigo-600 text-sm font-medium rounded-lg hover:bg-indigo-100 transition">
+                            Voir tous les logs
+                        </a>
+                    </div>
+                    @endif
+                </div>
+                @else
+                <div class="bg-white p-6 rounded-xl border border-gray-100 text-center">
+                    <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun push effectué</h3>
+                    <p class="text-gray-500 text-sm">Les logs des pushs apparaitront ici une fois les premières campagnes lancées.</p>
                 </div>
                 @endif
 
                 <!-- Quick Actions -->
-                <div class="mt-6 lg:mt-8 bg-white p-4 lg:p-6 rounded-xl border border-gray-100">
+                <div class="bg-white p-4 lg:p-6 rounded-xl border border-gray-100">
                     <h3 class="text-base lg:text-lg font-bold text-gray-900 mb-4">Actions Rapides</h3>
-                    <div class="flex flex-col sm:flex-row gap-3">
-                        <a href="{{ route('contacts.index') }}" class="inline-flex items-center justify-center px-4 py-2.5 lg:px-5 lg:py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            </svg>
-                            Gérer les contacts
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+                        <!-- Nouveau Contact - Désactivé car pas de route create -->
+                        {{-- <div class="p-4 border-2 border-dashed border-gray-300 rounded-xl opacity-50 cursor-not-allowed">
+                            <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                </svg>
+                            </div>
+                            <span class="text-sm font-medium text-gray-500">Nouveau Contact</span>
+                            <p class="text-xs text-gray-400 mt-1">Utilisez l'import</p>
+                        </div> --}}
+
+                        <!-- Import Contacts -->
+                        {{-- <a href="{{ route('contacts.import') }}" class="p-4 border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-300 hover:bg-blue-50 transition group text-center">
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:bg-blue-200 transition">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                                </svg>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700 group-hover:text-blue-700">Importer Contacts</span>
+                        </a> --}}
+
+                        <!-- Gestion des Contacts -->
+                        <a href="{{ route('contacts.index') }}" class="p-4 border-2 border-dashed border-gray-300 rounded-xl hover:border-green-300 hover:bg-green-50 transition group text-center">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:bg-green-200 transition">
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                </svg>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700 group-hover:text-green-700">Gérer Contacts</span>
                         </a>
 
-                        <a href="{{ route('twilio.config') }}" class="inline-flex items-center justify-center px-4 py-2.5 lg:px-5 lg:py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                            Configuration Twilio
+                        <!-- Configuration Twilio -->
+                        <a href="{{ route('twilio.config') }}" class="p-4 border-2 border-dashed border-gray-300 rounded-xl hover:border-purple-300 hover:bg-purple-50 transition group text-center">
+                            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:bg-purple-200 transition">
+                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700 group-hover:text-purple-700">Configuration</span>
                         </a>
                     </div>
                 </div>
@@ -255,8 +363,8 @@
         </main>
     </div>
 
+    <!-- JavaScript pour le menu mobile -->
     <script>
-        // Mobile menu functionality
         document.addEventListener('DOMContentLoaded', function() {
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const sidebar = document.getElementById('sidebar');
@@ -270,7 +378,7 @@
             mobileMenuButton.addEventListener('click', toggleSidebar);
             sidebarOverlay.addEventListener('click', toggleSidebar);
 
-            // Close sidebar when clicking on a link (mobile)
+            // Fermer le sidebar en cliquant sur un lien (mobile)
             sidebar.querySelectorAll('a').forEach(link => {
                 link.addEventListener('click', () => {
                     if (window.innerWidth < 1024) {
@@ -280,39 +388,4 @@
             });
         });
     </script>
-
-    <style>
-        @keyframes fade-in {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .animate-fade-in {
-            animation: fade-in 0.3s ease-out;
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e0;
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #a0aec0;
-        }
-    </style>
 </x-app-layout>

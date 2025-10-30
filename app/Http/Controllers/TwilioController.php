@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MessageWhatsapp;
+use App\Models\PushLog;
 use App\Models\TwilioConfig;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -75,7 +76,6 @@ class TwilioController extends Controller
                 ], 400);
             }
 
-            // Log pour débogage
             Log::info('Envoi message à un contact', [
                 'contact_id' => $id,
                 'numero'     => $message->numero_telephone,
@@ -83,6 +83,16 @@ class TwilioController extends Controller
             ]);
 
             $result = $this->sendWhatsAppMessage($message->numero_telephone, $config);
+
+            // Créer un log du push
+            $pushLog = PushLog::create([
+                'message_sid'      => $result['message_sid'] ?? null,
+                'numero_telephone' => $message->numero_telephone,
+                'nom_campagne'     => $message->nom_campagne,
+                'status'           => $result['success'] ? 'success' : 'failed',
+                'error_message'    => $result['success'] ? null : $result['error'],
+                'sent_at'          => now(),
+            ]);
 
             if ($result['success']) {
                 // Mettre à jour le message avec l'ID Twilio et la date d'envoi
@@ -94,6 +104,7 @@ class TwilioController extends Controller
                 Log::info('Message WhatsApp envoyé avec succès', [
                     'contact_id'  => $id,
                     'message_sid' => $result['message_sid'],
+                    'push_log_id' => $pushLog->id,
                 ]);
 
                 return response()->json([
@@ -101,6 +112,7 @@ class TwilioController extends Controller
                     'title'       => 'Succès',
                     'message'     => 'Message WhatsApp envoyé avec succès!',
                     'message_sid' => $result['message_sid'],
+                    'push_log_id' => $pushLog->id,
                     'contact'     => [
                         'id'       => $message->id,
                         'numero'   => $message->numero_telephone,
@@ -110,8 +122,9 @@ class TwilioController extends Controller
                 ]);
             } else {
                 Log::error('Erreur envoi message contact', [
-                    'contact_id' => $id,
-                    'error'      => $result['error'],
+                    'contact_id'  => $id,
+                    'error'       => $result['error'],
+                    'push_log_id' => $pushLog->id,
                 ]);
 
                 return response()->json([
@@ -185,6 +198,16 @@ class TwilioController extends Controller
 
                 $result = $this->sendWhatsAppMessage($contact->numero_telephone, $config);
 
+                // Créer un log du push pour chaque contact
+                $pushLog = PushLog::create([
+                    'message_sid'      => $result['message_sid'] ?? null,
+                    'numero_telephone' => $contact->numero_telephone,
+                    'nom_campagne'     => $contact->nom_campagne,
+                    'status'           => $result['success'] ? 'success' : 'failed',
+                    'error_message'    => $result['success'] ? null : $result['error'],
+                    'sent_at'          => now(),
+                ]);
+
                 if ($result['success']) {
                     $contact->update([
                         'id_twilio'  => $result['message_sid'],
@@ -194,6 +217,7 @@ class TwilioController extends Controller
 
                     $results[] = [
                         'contact_id'  => $contact->id,
+                        'push_log_id' => $pushLog->id,
                         'numero'      => $contact->numero_telephone,
                         'status'      => 'success',
                         'message_sid' => $result['message_sid'],
@@ -202,21 +226,24 @@ class TwilioController extends Controller
                     Log::info('Contact traité avec succès', [
                         'numero'      => $contact->numero_telephone,
                         'message_sid' => $result['message_sid'],
+                        'push_log_id' => $pushLog->id,
                     ]);
                 } else {
                     $errorCount++;
                     $errors[] = "{$contact->numero_telephone}: {$result['error']}";
 
                     $results[] = [
-                        'contact_id' => $contact->id,
-                        'numero'     => $contact->numero_telephone,
-                        'status'     => 'error',
-                        'error'      => $result['error'],
+                        'contact_id'  => $contact->id,
+                        'push_log_id' => $pushLog->id,
+                        'numero'      => $contact->numero_telephone,
+                        'status'      => 'error',
+                        'error'       => $result['error'],
                     ];
 
                     Log::error('Erreur envoi contact', [
-                        'numero' => $contact->numero_telephone,
-                        'error'  => $result['error'],
+                        'numero'      => $contact->numero_telephone,
+                        'error'       => $result['error'],
+                        'push_log_id' => $pushLog->id,
                     ]);
                 }
 
@@ -270,14 +297,12 @@ class TwilioController extends Controller
 
             $url = "https://api.twilio.com/2010-04-01/Accounts/{$config->account_sid}/Messages.json";
 
-            // Préparer le payload COMME DANS VOTRE CURL - sans espace après "whatsapp:"
             $payload = [
                 'ContentSid' => $config->content_sid,
-                'To'         => "whatsapp:{$cleanNumber}", // SUPPRIMER L'ESPACE - comme dans votre cURL
-                'From' => $config->from_number,
+                'To'         => "whatsapp:{$cleanNumber}",
+                'From'       => $config->from_number,
             ];
 
-            // Log de débogage détaillé
             Log::info('Twilio API Request Preparation', [
                 'url'         => $url,
                 'payload'     => $payload,
@@ -287,15 +312,13 @@ class TwilioController extends Controller
                 'to_number'   => $cleanNumber,
             ]);
 
-            // Désactiver la vérification SSL pour le développement et utiliser application/x-www-form-urlencoded
             $response = Http::withOptions([
-                'verify' => false, // Désactive la vérification SSL pour le dev
+                'verify' => false,
             ])->withBasicAuth($config->account_sid, $config->auth_token)
                 ->timeout(30)
-                ->asForm() // Cela envoie en application/x-www-form-urlencoded
+                ->asForm()
                 ->post($url, $payload);
 
-            // Log de la réponse
             Log::info('Twilio API Response', [
                 'status_code' => $response->status(),
                 'body'        => $response->body(),
