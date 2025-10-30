@@ -23,6 +23,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{id}', [ContactController::class, 'destroy'])->name('contacts.destroy');
         Route::delete('/campaign/delete', [ContactController::class, 'deleteCampaign'])->name('contacts.deleteCampaign');
         Route::get('/search', [ContactController::class, 'search'])->name('contacts.search');
+        
     });
 
     // Configuration Twilio

@@ -142,6 +142,15 @@
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
 
+        .form-input.error-input {
+            border-color: var(--error-color);
+        }
+
+        .form-input.error-input:focus {
+            border-color: var(--error-color);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+
         /* Case à cocher "Se souvenir de moi" */
         .remember-me {
             display: flex;
@@ -276,9 +285,18 @@
             </div>
 
             <!-- Statut de session -->
-            {{-- <div class="auth-status success">
-                <!-- Le contenu du statut sera injecté dynamiquement -->
-            </div> --}}
+            @if (session('status'))
+                <div class="auth-status success">
+                    {{ session('status') }}
+                </div>
+            @endif
+
+            <!-- Message d'erreur général -->
+            @if ($errors->any())
+                <div class="auth-status error">
+                    <strong>Erreur de connexion :</strong> Les identifiants fournis sont incorrects.
+                </div>
+            @endif
 
             <!-- Formulaire de connexion -->
             <form method="POST" action="{{ route('login') }}" id="loginForm">
@@ -290,10 +308,10 @@
                         <!-- Email -->
                         <div class="form-group">
                             <label for="email" class="form-label">Adresse email</label>
-                            <input id="email" class="form-input" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" placeholder="votre@email.com">
-                            <span class="input-error">
-                                <!-- Les messages d'erreur seront injectés ici -->
-                            </span>
+                            <input id="email" class="form-input @error('email') error-input @enderror" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" placeholder="votre@email.com">
+                            @error('email')
+                                <span class="input-error">{{ $message }}</span>
+                            @enderror
                         </div>
 
                         <!-- Se souvenir de moi -->
@@ -308,10 +326,10 @@
                         <!-- Mot de passe -->
                         <div class="form-group">
                             <label for="password" class="form-label">Mot de passe</label>
-                            <input id="password" class="form-input" type="password" name="password" required autocomplete="current-password" placeholder="Votre mot de passe">
-                            <span class="input-error">
-                                <!-- Les messages d'erreur seront injectés ici -->
-                            </span>
+                            <input id="password" class="form-input @error('password') error-input @enderror" type="password" name="password" required autocomplete="current-password" placeholder="Votre mot de passe">
+                            @error('password')
+                                <span class="input-error">{{ $message }}</span>
+                            @enderror
                         </div>
 
                         <!-- Section d'action -->

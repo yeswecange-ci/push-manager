@@ -469,10 +469,11 @@
                 <code class="text-xs bg-white px-2 lg:px-3 py-1 lg:py-2 rounded block text-gray-700">
                     numero_telephone,nom_campagne<br>
                     0701234567,Campagne_2024<br>
-                    701234567,Campagne_2024<br>
                     +22501234567,Campagne_2024
                 </code>
+                <p class="text-xs text-blue-700 mt-2">100 contacts max par import</p>
                 <p class="text-xs text-blue-700 mt-2">L'indicatif +225 sera ajouté automatiquement si absent</p>
+
             </div>
 
             <form method="POST" action="{{ route('contacts.import') }}" enctype="multipart/form-data" id="importForm">
@@ -486,6 +487,7 @@
                         </svg>
                         <p class="text-xs lg:text-sm font-medium text-gray-600" id="fileLabel">Cliquez pour sélectionner</p>
                         <p class="text-xs text-gray-500 mt-1">CSV uniquement</p>
+                        {{-- <p class="text-xs text-gray-500 mt-1">100 contacts max par import</p> --}}
                     </label>
                 </div>
 
