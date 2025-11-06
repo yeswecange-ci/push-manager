@@ -16,8 +16,11 @@ return new class extends Migration
             $table->string('message_sid')->nullable()->index(); // ID Twilio
             $table->string('numero_telephone');
             $table->string('nom_campagne');
+            $table->string('campaign_id')->nullable(); // NOUVEAU CHAMP
             $table->enum('status', ['success', 'failed', 'pending'])->default('pending');
             $table->text('error_message')->nullable();
+            $table->decimal('response_time', 8, 3)->nullable(); // NOUVEAU CHAMP
+            $table->text('message_content')->nullable(); // NOUVEAU CHAMP
             $table->timestamp('sent_at'); // Date et heure du push
             $table->timestamps();
 
@@ -25,6 +28,7 @@ return new class extends Migration
             $table->index('nom_campagne');
             $table->index('status');
             $table->index('sent_at');
+            $table->index(['sent_at', 'status']); // NOUVEAU INDEX COMPOSITE
         });
     }
 

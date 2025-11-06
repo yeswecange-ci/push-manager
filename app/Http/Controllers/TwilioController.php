@@ -82,15 +82,20 @@ class TwilioController extends Controller
                 'campagne'   => $message->nom_campagne,
             ]);
 
+            $startTime = microtime(true);
             $result = $this->sendWhatsAppMessage($message->numero_telephone, $config);
+            $responseTime = round(microtime(true) - $startTime, 3);
 
-            // Créer un log du push
+            // Créer un log du push avec les nouveaux champs
             $pushLog = PushLog::create([
                 'message_sid'      => $result['message_sid'] ?? null,
                 'numero_telephone' => $message->numero_telephone,
                 'nom_campagne'     => $message->nom_campagne,
+                'campaign_id'      => $message->id, // Nouveau champ
                 'status'           => $result['success'] ? 'success' : 'failed',
                 'error_message'    => $result['success'] ? null : $result['error'],
+                'response_time'    => $result['success'] ? $responseTime : null, // Nouveau champ
+                'message_content'  => $result['message_content'] ?? null, // Nouveau champ
                 'sent_at'          => now(),
             ]);
 
@@ -102,9 +107,10 @@ class TwilioController extends Controller
                 ]);
 
                 Log::info('Message WhatsApp envoyé avec succès', [
-                    'contact_id'  => $id,
-                    'message_sid' => $result['message_sid'],
-                    'push_log_id' => $pushLog->id,
+                    'contact_id'    => $id,
+                    'message_sid'   => $result['message_sid'],
+                    'push_log_id'   => $pushLog->id,
+                    'response_time' => $responseTime,
                 ]);
 
                 return response()->json([
@@ -113,6 +119,7 @@ class TwilioController extends Controller
                     'message'     => 'Message WhatsApp envoyé avec succès!',
                     'message_sid' => $result['message_sid'],
                     'push_log_id' => $pushLog->id,
+                    'response_time' => $responseTime,
                     'contact'     => [
                         'id'       => $message->id,
                         'numero'   => $message->numero_telephone,
@@ -188,6 +195,7 @@ class TwilioController extends Controller
             $errorCount   = 0;
             $errors       = [];
             $results      = [];
+            $totalResponseTime = 0;
 
             foreach ($contacts as $index => $contact) {
                 Log::info('Envoi au contact', [
@@ -196,15 +204,20 @@ class TwilioController extends Controller
                     'numero' => $contact->numero_telephone,
                 ]);
 
+                $startTime = microtime(true);
                 $result = $this->sendWhatsAppMessage($contact->numero_telephone, $config);
+                $responseTime = round(microtime(true) - $startTime, 3);
 
-                // Créer un log du push pour chaque contact
+                // Créer un log du push pour chaque contact avec les nouveaux champs
                 $pushLog = PushLog::create([
                     'message_sid'      => $result['message_sid'] ?? null,
                     'numero_telephone' => $contact->numero_telephone,
                     'nom_campagne'     => $contact->nom_campagne,
+                    'campaign_id'      => $contact->id, // Nouveau champ
                     'status'           => $result['success'] ? 'success' : 'failed',
                     'error_message'    => $result['success'] ? null : $result['error'],
+                    'response_time'    => $result['success'] ? $responseTime : null, // Nouveau champ
+                    'message_content'  => $result['message_content'] ?? null, // Nouveau champ
                     'sent_at'          => now(),
                 ]);
 
@@ -214,19 +227,22 @@ class TwilioController extends Controller
                         'date_envoi' => now(),
                     ]);
                     $successCount++;
+                    $totalResponseTime += $responseTime;
 
                     $results[] = [
-                        'contact_id'  => $contact->id,
-                        'push_log_id' => $pushLog->id,
-                        'numero'      => $contact->numero_telephone,
-                        'status'      => 'success',
-                        'message_sid' => $result['message_sid'],
+                        'contact_id'    => $contact->id,
+                        'push_log_id'   => $pushLog->id,
+                        'numero'        => $contact->numero_telephone,
+                        'status'        => 'success',
+                        'message_sid'   => $result['message_sid'],
+                        'response_time' => $responseTime,
                     ];
 
                     Log::info('Contact traité avec succès', [
-                        'numero'      => $contact->numero_telephone,
-                        'message_sid' => $result['message_sid'],
-                        'push_log_id' => $pushLog->id,
+                        'numero'        => $contact->numero_telephone,
+                        'message_sid'   => $result['message_sid'],
+                        'push_log_id'   => $pushLog->id,
+                        'response_time' => $responseTime,
                     ]);
                 } else {
                     $errorCount++;
@@ -251,12 +267,14 @@ class TwilioController extends Controller
                 usleep(500000);
             }
 
+            $avgResponseTime = $successCount > 0 ? round($totalResponseTime / $successCount, 3) : 0;
             $message = "Campagne terminée: {$successCount} messages envoyés, {$errorCount} erreurs.";
 
             Log::info('Campagne terminée', [
-                'campagne' => $request->campagne,
-                'success'  => $successCount,
-                'errors'   => $errorCount,
+                'campagne'         => $request->campagne,
+                'success'          => $successCount,
+                'errors'           => $errorCount,
+                'avg_response_time' => $avgResponseTime,
             ]);
 
             return response()->json([
@@ -264,9 +282,10 @@ class TwilioController extends Controller
                 'title'      => 'Campagne Terminée',
                 'message'    => $message,
                 'statistics' => [
-                    'total'   => $contacts->count(),
-                    'success' => $successCount,
-                    'errors'  => $errorCount,
+                    'total'           => $contacts->count(),
+                    'success'         => $successCount,
+                    'errors'          => $errorCount,
+                    'avg_response_time' => $avgResponseTime,
                 ],
                 'results'    => $results,
                 'errors'     => $errors,
@@ -333,8 +352,9 @@ class TwilioController extends Controller
                 ]);
 
                 return [
-                    'success'     => true,
-                    'message_sid' => $data['sid'] ?? null,
+                    'success'        => true,
+                    'message_sid'    => $data['sid'] ?? null,
+                    'message_content' => $this->extractMessageContent($data), // Nouveau
                 ];
             } else {
                 $errorData    = $response->json();
@@ -366,6 +386,38 @@ class TwilioController extends Controller
                 'success' => false,
                 'error'   => 'Exception: ' . $e->getMessage(),
             ];
+        }
+    }
+
+    /**
+     * Extrait le contenu du message de la réponse Twilio
+     */
+    private function extractMessageContent($twilioData)
+    {
+        try {
+            // Essayer d'extraire le contenu du message de différentes manières
+            if (isset($twilioData['body'])) {
+                return $twilioData['body'];
+            }
+
+            if (isset($twilioData['content'])) {
+                return is_array($twilioData['content'])
+                    ? json_encode($twilioData['content'])
+                    : $twilioData['content'];
+            }
+
+            // Si on utilise ContentSid, on peut stocker l'ID du template
+            if (isset($twilioData['content_sid'])) {
+                return "Template: " . $twilioData['content_sid'];
+            }
+
+            return "Message envoyé via Twilio";
+
+        } catch (\Exception $e) {
+            Log::warning('Erreur extraction contenu message', [
+                'error' => $e->getMessage(),
+            ]);
+            return "Contenu non disponible";
         }
     }
 }
