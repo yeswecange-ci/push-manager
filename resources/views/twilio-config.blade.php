@@ -46,7 +46,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                     </svg>
-                    <span class="font-medium text-sm">Config chaîne</span>
+                    <span class="font-medium text-sm">Config chaînes</span>
                 </a>
             </nav>
 
@@ -69,8 +69,8 @@
             <header class="bg-white border-b border-gray-100">
                 <div class="flex items-center justify-between px-4 lg:px-8 py-4 lg:py-5">
                     <div class="lg:ml-0 ml-12">
-                        <h2 class="text-lg lg:text-xl font-bold text-gray-900">Configuration de la chaîne</h2>
-                        <p class="text-xs text-gray-500 mt-0.5">Configurez les identifiants de votre chaîne WhatsApp</p>
+                        <h2 class="text-lg lg:text-xl font-bold text-gray-900">Configuration des chaînes</h2>
+                        <p class="text-xs text-gray-500 mt-0.5">Gérez vos différentes chaînes WhatsApp</p>
                     </div>
                     <div class="flex items-center space-x-3">
                         <div class="text-right mr-4 hidden sm:block">
@@ -125,201 +125,324 @@
                     </div>
                 @endif
 
-                <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
-                    <!-- Configuration Form -->
-                    <div class="lg:col-span-2">
-                        <div class="bg-white rounded-xl border border-gray-100 p-4 lg:p-8">
-                            <h3 class="text-lg lg:text-xl font-bold text-gray-900 mb-4 lg:mb-6">Configuration de la chaîne</h3>
-
-                            <form method="POST" action="{{ route('twilio.saveConfig') }}">
-                                @csrf
-
-                                <div class="space-y-4 lg:space-y-6">
-                                    <!-- Account SID -->
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                                            Account SID *
-                                        </label>
-                                        <input type="text" name="account_sid" required
-                                               value="{{ old('account_sid', $config->account_sid ?? '') }}"
-                                               placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                                               class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
-                                        <p class="text-xs text-gray-500 mt-1">
-                                            Trouvable dans votre dashboard Twilio
-                                        </p>
-                                    </div>
-
-                                    <!-- Auth Token -->
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                                            Auth Token *
-                                        </label>
-                                        <input type="password" name="auth_token" required
-                                               value="{{ old('auth_token', $config->auth_token ?? '') }}"
-                                               placeholder="Votre token d'authentification"
-                                               class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
-                                        <p class="text-xs text-gray-500 mt-1">
-                                            Gardez cette information secrète
-                                        </p>
-                                    </div>
-
-                                    <!-- Content SID -->
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                                            Content SID *
-                                        </label>
-                                        <input type="text" name="content_sid" required
-                                               value="{{ old('content_sid', $config->content_sid ?? '') }}"
-                                               placeholder="HXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                                               class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
-                                        <p class="text-xs text-gray-500 mt-1">
-                                            ID de votre template WhatsApp approuvé
-                                        </p>
-                                    </div>
-
-                                    <!-- From Number (Messaging Service) -->
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                                            Messaging Service SID *
-                                        </label>
-                                        <input type="text" name="from_number" required
-                                               value="{{ old('from_number', $config->from_number ?? '') }}"
-                                               placeholder="MGxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                                               class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
-                                        <p class="text-xs text-gray-500 mt-1">
-                                            ID de votre Messaging Service Twilio
-                                        </p>
-                                    </div>
-
-                                    <div class="pt-2 lg:pt-4">
-                                        <button type="submit"
-                                                class="w-full px-4 lg:px-6 py-2.5 lg:py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-sm lg:text-base">
-                                            Enregistrer la configuration
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
+                <div class="grid grid-cols-1 gap-6 lg:gap-8">
+                    <!-- Liste des chaînes existantes -->
+                    @if($configs->isNotEmpty())
+                    <div class="bg-white rounded-xl border border-gray-100 p-4 lg:p-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg lg:text-xl font-bold text-gray-900">Chaînes WhatsApp configurées</h3>
+                            <span class="px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-medium rounded-full">
+                                {{ $configs->count() }} chaîne{{ $configs->count() > 1 ? 's' : '' }}
+                            </span>
                         </div>
-                    </div>
 
-                    <!-- Instructions -->
-                    <div class="space-y-4 lg:space-y-6">
-                        <!-- Guide -->
-                        {{-- <div class="bg-white rounded-xl border border-gray-100 p-4 lg:p-6">
-                            <h4 class="text-base lg:text-lg font-bold text-gray-900 mb-3 lg:mb-4">Guide d'installation</h4>
+                        <div class="space-y-4">
+                            @foreach($configs as $config)
+                            <div class="border border-gray-200 rounded-xl p-4 lg:p-6 {{ $config->is_active ? 'bg-green-50 border-green-300' : 'bg-white' }} transition-all hover:shadow-md">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-3 mb-3">
+                                            <h4 class="text-base lg:text-lg font-bold text-gray-900">{{ $config->channel_name }}</h4>
+                                            @if($config->is_active)
+                                            <span class="px-2 py-1 bg-green-600 text-white text-xs font-medium rounded-full flex items-center">
+                                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                                </svg>
+                                                Active
+                                            </span>
+                                            @else
+                                            <span class="px-2 py-1 bg-gray-200 text-gray-600 text-xs font-medium rounded-full">
+                                                Inactive
+                                            </span>
+                                            @endif
+                                        </div>
 
-                            <div class="space-y-3 lg:space-y-4">
-                                <div class="flex items-start space-x-3">
-                                    <div class="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
-                                        1
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                            <div>
+                                                <span class="text-gray-600">Account SID:</span>
+                                                <span class="text-gray-900 font-mono text-xs ml-2">{{ substr($config->account_sid, 0, 10) }}...</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-gray-600">Content SID:</span>
+                                                <span class="text-gray-900 font-mono text-xs ml-2">{{ substr($config->content_sid, 0, 10) }}...</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-gray-600">From Number:</span>
+                                                <span class="text-gray-900 font-mono text-xs ml-2">{{ substr($config->from_number, 0, 10) }}...</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-gray-600">Dernière mise à jour:</span>
+                                                <span class="text-gray-900 text-xs ml-2">{{ $config->updated_at->format('d/m/Y H:i') }}</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900">Twilio Console</p>
-                                        <p class="text-xs text-gray-600 mt-0.5">
-                                            Connectez-vous à votre compte Twilio
-                                        </p>
-                                    </div>
-                                </div>
 
-                                <div class="flex items-start space-x-3">
-                                    <div class="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
-                                        2
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900">Account SID & Auth Token</p>
-                                        <p class="text-xs text-gray-600 mt-0.5">
-                                            Disponibles sur la page d'accueil de la console
-                                        </p>
-                                    </div>
-                                </div>
+                                    <div class="flex flex-col space-y-2 ml-4">
+                                        <!-- Bouton Modifier (toujours disponible) -->
+                                        <button onclick="openEditModal({{ $config->id }}, '{{ $config->channel_name }}', '{{ $config->account_sid }}', '{{ $config->content_sid }}', '{{ $config->from_number }}')"
+                                                class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition whitespace-nowrap">
+                                            Modifier
+                                        </button>
 
-                                <div class="flex items-start space-x-3">
-                                    <div class="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
-                                        3
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900">Content SID</p>
-                                        <p class="text-xs text-gray-600 mt-0.5">
-                                            Créez un template WhatsApp dans Content API
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div class="flex items-start space-x-3">
-                                    <div class="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
-                                        4
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900">Messaging Service</p>
-                                        <p class="text-xs text-gray-600 mt-0.5">
-                                            Créez un service et ajoutez votre numéro WhatsApp
-                                        </p>
+                                        @if(!$config->is_active)
+                                        <form method="POST" action="{{ route('twilio.activateConfig', $config->id) }}">
+                                            @csrf
+                                            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition whitespace-nowrap">
+                                                Activer
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{{ route('twilio.deleteConfig', $config->id) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette chaîne ?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition whitespace-nowrap">
+                                                Supprimer
+                                            </button>
+                                        </form>
+                                        @else
+                                        <div class="px-4 py-2 bg-gray-100 text-gray-500 text-sm font-medium rounded-lg text-center">
+                                            En cours d'utilisation
+                                        </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
-                        </div> --}}
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
 
-                        <!-- Current Configuration -->
-                        @if($config)
-                        <div class="bg-green-50 border border-green-200 rounded-xl p-4 lg:p-6">
-                            <div class="flex items-center mb-2 lg:mb-3">
-                                <svg class="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <!-- Formulaire d'ajout d'une nouvelle chaîne -->
+                    <div class="bg-white rounded-xl border border-gray-100 p-4 lg:p-8">
+                        <h3 class="text-lg lg:text-xl font-bold text-gray-900 mb-4 lg:mb-6">Ajouter une nouvelle chaîne</h3>
+
+                        <form method="POST" action="{{ route('twilio.saveConfig') }}">
+                            @csrf
+
+                            <div class="space-y-4 lg:space-y-6">
+                                <!-- Nom de la chaîne -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Nom de la chaîne *
+                                    </label>
+                                    <input type="text" name="channel_name" required
+                                           value="{{ old('channel_name') }}"
+                                           placeholder="Ex: Chaîne Marketing, Chaîne Support..."
+                                           class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        Donnez un nom unique pour identifier cette chaîne
+                                    </p>
+                                    @error('channel_name')
+                                        <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <!-- Account SID -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Account SID *
+                                    </label>
+                                    <input type="text" name="account_sid" required
+                                           value="{{ old('account_sid') }}"
+                                           placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                                           class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        Trouvable dans votre dashboard Twilio
+                                    </p>
+                                </div>
+
+                                <!-- Auth Token -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Auth Token *
+                                    </label>
+                                    <input type="password" name="auth_token" required
+                                           value="{{ old('auth_token') }}"
+                                           placeholder="Votre token d'authentification"
+                                           class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        Gardez cette information secrète
+                                    </p>
+                                </div>
+
+                                <!-- Content SID -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Content SID *
+                                    </label>
+                                    <input type="text" name="content_sid" required
+                                           value="{{ old('content_sid') }}"
+                                           placeholder="HXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                                           class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        ID de votre template WhatsApp approuvé
+                                    </p>
+                                </div>
+
+                                <!-- From Number (Messaging Service) -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Messaging Service SID *
+                                    </label>
+                                    <input type="text" name="from_number" required
+                                           value="{{ old('from_number') }}"
+                                           placeholder="MGxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                                           class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        ID de votre Messaging Service Twilio
+                                    </p>
+                                </div>
+
+                                <div class="pt-2 lg:pt-4">
+                                    <button type="submit"
+                                            class="w-full px-4 lg:px-6 py-2.5 lg:py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-sm lg:text-base">
+                                        Ajouter la chaîne
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Informations sur la chaîne active -->
+                    @if($activeConfig)
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 lg:p-6">
+                        <div class="flex items-center mb-3">
+                            <div class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center mr-3">
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                                 </svg>
-                                <h4 class="text-base lg:text-lg font-bold text-green-900">Configuration Active</h4>
                             </div>
-
-                            <div class="space-y-1 lg:space-y-2 text-xs lg:text-sm">
-                                <div class="flex justify-between">
-                                    <span class="text-green-700">Account SID:</span>
-                                    <span class="text-green-900 font-mono text-xs">{{ substr($config->account_sid, 0, 10) }}...</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-green-700">Content SID:</span>
-                                    <span class="text-green-900 font-mono text-xs">{{ substr($config->content_sid, 0, 10) }}...</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-green-700">From Number:</span>
-                                    <span class="text-green-900 font-mono text-xs">{{ substr($config->from_number, 0, 10) }}...</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-green-700">Dernière mise à jour:</span>
-                                    <span class="text-green-900 text-xs lg:text-sm">{{ $config->updated_at->format('d/m/Y H:i') }}</span>
-                                </div>
+                            <div>
+                                <h4 class="text-base lg:text-lg font-bold text-green-900">Chaîne active</h4>
+                                <p class="text-sm text-green-700">{{ $activeConfig->channel_name }}</p>
                             </div>
                         </div>
-                        @else
-                        <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 lg:p-6">
-                            <div class="flex items-center mb-2 lg:mb-3">
-                                <svg class="w-5 h-5 text-yellow-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                </svg>
-                                <h4 class="text-base lg:text-lg font-bold text-yellow-900">Configuration Requise</h4>
-                            </div>
-                            <p class="text-xs lg:text-sm text-yellow-800">
-                                Aucune configuration Twilio active. Veuillez remplir le formulaire pour activer l'envoi de messages WhatsApp.
-                            </p>
-                        </div>
-                        @endif
 
-                        <!-- Test Connection -->
-                        @if($config)
-                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 lg:p-6">
-                            <h4 class="text-base lg:text-lg font-bold text-blue-900 mb-2 lg:mb-3">Tester la connexion</h4>
-                            <p class="text-xs lg:text-sm text-blue-800 mb-3 lg:mb-4">
-                                Vérifiez que votre configuration fonctionne correctement.
-                            </p>
+                        <p class="text-xs lg:text-sm text-green-800">
+                            Cette chaîne sera utilisée pour tous les envois de messages WhatsApp.
+                            Pour changer de chaîne, activez-en une autre dans la liste ci-dessus.
+                        </p>
+
+                        <div class="mt-4 pt-4 border-t border-green-200">
                             <a href="{{ route('contacts.index') }}"
-                               class="w-full px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition text-center block">
-                                Tester avec un envoi
+                               class="inline-flex items-center px-4 py-2.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                </svg>
+                                Envoyer des messages
                             </a>
                         </div>
-                        @endif
                     </div>
+                    @else
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 lg:p-6">
+                        <div class="flex items-center mb-3">
+                            <svg class="w-8 h-8 text-yellow-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            <div>
+                                <h4 class="text-base lg:text-lg font-bold text-yellow-900">Aucune chaîne active</h4>
+                                <p class="text-sm text-yellow-700">Configuration requise</p>
+                            </div>
+                        </div>
+                        <p class="text-xs lg:text-sm text-yellow-800">
+                            Vous devez ajouter au moins une chaîne WhatsApp et l'activer pour pouvoir envoyer des messages.
+                        </p>
+                    </div>
+                    @endif
                 </div>
             </div>
         </main>
     </div>
+
+    <!-- Modal de modification -->
+<div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-hidden flex flex-col">
+        <!-- En-tête fixe -->
+        <div class="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between z-10">
+            <h3 class="text-lg sm:text-xl font-bold text-gray-900">Modifier la chaîne</h3>
+            <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 transition p-1">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Contenu scrollable -->
+        <div class="flex-1 overflow-y-auto">
+            <form id="editForm" method="POST" action="" class="p-4 sm:p-6">
+                @csrf
+                @method('PUT')
+
+                <div class="space-y-4">
+                    <!-- Nom de la chaîne -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Nom de la chaîne *
+                        </label>
+                        <input type="text" name="channel_name" id="edit_channel_name" required
+                               class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                    </div>
+
+                    <!-- Account SID -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Account SID *
+                        </label>
+                        <input type="text" name="account_sid" id="edit_account_sid" required
+                               placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                               class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                    </div>
+
+                    <!-- Auth Token -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Auth Token
+                        </label>
+                        <input type="password" name="auth_token" id="edit_auth_token"
+                               placeholder="Laissez vide pour ne pas modifier"
+                               class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                        <p class="text-xs text-gray-500 mt-1">
+                            Laissez vide pour conserver le token actuel
+                        </p>
+                    </div>
+
+                    <!-- Content SID -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Content SID *
+                        </label>
+                        <input type="text" name="content_sid" id="edit_content_sid" required
+                               placeholder="HXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                               class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                    </div>
+
+                    <!-- From Number (Messaging Service) -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Messaging Service SID *
+                        </label>
+                        <input type="text" name="from_number" id="edit_from_number" required
+                               placeholder="MGxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                               class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                    </div>
+                </div>
+
+                <!-- Boutons fixes en bas -->
+                <div class="sticky bottom-0 bg-white pt-4 mt-6 border-t border-gray-200 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3">
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                        <button type="button" onclick="closeEditModal()"
+                                class="flex-1 px-4 py-2.5 sm:py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition text-sm sm:text-base">
+                            Annuler
+                        </button>
+                        <button type="submit"
+                                class="flex-1 px-4 py-2.5 sm:py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition text-sm sm:text-base">
+                            Mettre à jour
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
     <script>
         // Mobile menu functionality
@@ -344,6 +467,40 @@
                     }
                 });
             });
+        });
+
+        // Modal de modification
+        function openEditModal(id, channelName, accountSid, contentSid, fromNumber) {
+            document.getElementById('editModal').classList.remove('hidden');
+            document.getElementById('editForm').action = `/twilio/config/${id}`;
+            document.getElementById('edit_channel_name').value = channelName;
+            document.getElementById('edit_account_sid').value = accountSid;
+            document.getElementById('edit_content_sid').value = contentSid;
+            document.getElementById('edit_from_number').value = fromNumber;
+            // Vider le champ auth_token
+            document.getElementById('edit_auth_token').value = '';
+            document.getElementById('edit_auth_token').removeAttribute('required');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+            // Réinitialiser le formulaire
+            document.getElementById('editForm').reset();
+            document.getElementById('edit_auth_token').setAttribute('required', 'required');
+        }
+
+        // Fermer le modal en cliquant en dehors
+        document.getElementById('editModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditModal();
+            }
+        });
+
+        // Fermer le modal avec la touche Échap
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeEditModal();
+            }
         });
     </script>
 

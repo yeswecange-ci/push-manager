@@ -23,13 +23,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{id}', [ContactController::class, 'destroy'])->name('contacts.destroy');
         Route::delete('/campaign/delete', [ContactController::class, 'deleteCampaign'])->name('contacts.deleteCampaign');
         Route::get('/search', [ContactController::class, 'search'])->name('contacts.search');
-        
     });
 
+    // Configuration Twilio
+    // Configuration Twilio
     // Configuration Twilio
     Route::prefix('twilio')->group(function () {
         Route::get('/config', [TwilioController::class, 'config'])->name('twilio.config');
         Route::post('/config', [TwilioController::class, 'saveConfig'])->name('twilio.saveConfig');
+        Route::post('/config/activate/{id}', [TwilioController::class, 'activateConfig'])->name('twilio.activateConfig');
+        Route::put('/config/{id}', [TwilioController::class, 'updateConfig'])->name('twilio.updateConfig');
+        Route::delete('/config/{id}', [TwilioController::class, 'deleteConfig'])->name('twilio.deleteConfig');
         Route::post('/send-contact/{id}', [TwilioController::class, 'sendContact'])->name('twilio.sendContact');
         Route::post('/send-campaign', [TwilioController::class, 'sendCampaign'])->name('twilio.sendCampaign');
     });
@@ -40,4 +44,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

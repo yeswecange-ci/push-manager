@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\MessageWhatsapp;
@@ -11,23 +12,26 @@ use Illuminate\Support\Facades\Log;
 class TwilioController extends Controller
 {
     /**
-     * Affiche la page de configuration Twilio
+     * Affiche la page de configuration Twilio avec toutes les chaînes
      */
     public function config()
     {
-        $currentConfig = TwilioConfig::getActive();
+        $configs = TwilioConfig::getAllConfigs();
+        $activeConfig = TwilioConfig::getActive();
 
         return view('twilio-config', [
-            'config' => $currentConfig,
+            'configs' => $configs,
+            'activeConfig' => $activeConfig,
         ]);
     }
 
     /**
-     * Enregistre la configuration Twilio
+     * Enregistre une nouvelle configuration Twilio
      */
     public function saveConfig(Request $request)
     {
         $request->validate([
+            'channel_name' => 'required|string|max:255|unique:twilio_configs,channel_name',
             'account_sid' => 'required|string',
             'auth_token'  => 'required|string',
             'content_sid' => 'required|string',
@@ -35,21 +39,17 @@ class TwilioController extends Controller
         ]);
 
         try {
-            // Créer ou mettre à jour la configuration
             $config = TwilioConfig::create([
+                'channel_name' => $request->channel_name,
                 'account_sid' => $request->account_sid,
                 'auth_token'  => $request->auth_token,
                 'content_sid' => $request->content_sid,
                 'from_number' => $request->from_number,
-                'is_active'   => true,
+                'is_active'   => false, // Par défaut non active
             ]);
 
-            // Désactiver les autres configurations
-            $config->setAsActive();
-
             return redirect()->route('twilio.config')
-                ->with('success', 'Configuration Twilio enregistrée avec succès!');
-
+                ->with('success', 'Configuration de la chaîne "' . $request->channel_name . '" ajoutée avec succès!');
         } catch (\Exception $e) {
             Log::error('Erreur sauvegarde config Twilio: ' . $e->getMessage());
 
@@ -58,6 +58,90 @@ class TwilioController extends Controller
         }
     }
 
+    /**
+     * Active une configuration spécifique
+     */
+    public function activateConfig($id)
+    {
+        try {
+            $config = TwilioConfig::findOrFail($id);
+            $config->setAsActive();
+
+            return redirect()->route('twilio.config')
+                ->with('success', 'La chaîne "' . $config->channel_name . '" est maintenant active!');
+        } catch (\Exception $e) {
+            Log::error('Erreur activation config: ' . $e->getMessage());
+
+            return redirect()->route('twilio.config')
+                ->with('error', 'Erreur lors de l\'activation: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Supprime une configuration
+     */
+    public function deleteConfig($id)
+    {
+        try {
+            $config = TwilioConfig::findOrFail($id);
+
+            if ($config->is_active) {
+                return redirect()->route('twilio.config')
+                    ->with('error', 'Impossible de supprimer la configuration active. Veuillez d\'abord activer une autre chaîne.');
+            }
+
+            $channelName = $config->channel_name;
+            $config->delete();
+
+            return redirect()->route('twilio.config')
+                ->with('success', 'La chaîne "' . $channelName . '" a été supprimée avec succès!');
+        } catch (\Exception $e) {
+            Log::error('Erreur suppression config: ' . $e->getMessage());
+
+            return redirect()->route('twilio.config')
+                ->with('error', 'Erreur lors de la suppression: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Met à jour une configuration existante
+     */
+    public function updateConfig(Request $request, $id)
+    {
+        try {
+            $config = TwilioConfig::findOrFail($id);
+
+            $request->validate([
+                'channel_name' => 'required|string|max:255|unique:twilio_configs,channel_name,' . $id,
+                'account_sid' => 'required|string',
+                'auth_token'  => 'nullable|string',
+                'content_sid' => 'required|string',
+                'from_number' => 'required|string',
+            ]);
+
+            $updateData = [
+                'channel_name' => $request->channel_name,
+                'account_sid' => $request->account_sid,
+                'content_sid' => $request->content_sid,
+                'from_number' => $request->from_number,
+            ];
+
+            // Ne mettre à jour l'auth_token que s'il est fourni
+            if ($request->filled('auth_token')) {
+                $updateData['auth_token'] = $request->auth_token;
+            }
+
+            $config->update($updateData);
+
+            return redirect()->route('twilio.config')
+                ->with('success', 'La chaîne "' . $request->channel_name . '" a été mise à jour avec succès!');
+        } catch (\Exception $e) {
+            Log::error('Erreur mise à jour config: ' . $e->getMessage());
+
+            return redirect()->route('twilio.config')
+                ->with('error', 'Erreur lors de la mise à jour: ' . $e->getMessage());
+        }
+    }
     /**
      * Envoie un message WhatsApp à un contact spécifique via API
      */
@@ -71,7 +155,7 @@ class TwilioController extends Controller
                 return response()->json([
                     'success' => false,
                     'title'   => 'Erreur de Configuration',
-                    'message' => 'Configuration Twilio non trouvée. Veuillez configurer Twilio d\'abord.',
+                    'message' => 'Aucune chaîne WhatsApp active. Veuillez activer une chaîne dans la configuration.',
                     'type'    => 'error',
                 ], 400);
             }
@@ -80,27 +164,26 @@ class TwilioController extends Controller
                 'contact_id' => $id,
                 'numero'     => $message->numero_telephone,
                 'campagne'   => $message->nom_campagne,
+                'channel'    => $config->channel_name,
             ]);
 
             $startTime = microtime(true);
             $result = $this->sendWhatsAppMessage($message->numero_telephone, $config);
             $responseTime = round(microtime(true) - $startTime, 3);
 
-            // Créer un log du push avec les nouveaux champs
             $pushLog = PushLog::create([
                 'message_sid'      => $result['message_sid'] ?? null,
                 'numero_telephone' => $message->numero_telephone,
                 'nom_campagne'     => $message->nom_campagne,
-                'campaign_id'      => $message->id, // Nouveau champ
+                'campaign_id'      => $message->id,
                 'status'           => $result['success'] ? 'success' : 'failed',
                 'error_message'    => $result['success'] ? null : $result['error'],
-                'response_time'    => $result['success'] ? $responseTime : null, // Nouveau champ
-                'message_content'  => $result['message_content'] ?? null, // Nouveau champ
+                'response_time'    => $result['success'] ? $responseTime : null,
+                'message_content'  => $result['message_content'] ?? null,
                 'sent_at'          => now(),
             ]);
 
             if ($result['success']) {
-                // Mettre à jour le message avec l'ID Twilio et la date d'envoi
                 $message->update([
                     'id_twilio'  => $result['message_sid'],
                     'date_envoi' => now(),
@@ -111,15 +194,17 @@ class TwilioController extends Controller
                     'message_sid'   => $result['message_sid'],
                     'push_log_id'   => $pushLog->id,
                     'response_time' => $responseTime,
+                    'channel'       => $config->channel_name,
                 ]);
 
                 return response()->json([
                     'success'     => true,
                     'title'       => 'Succès',
-                    'message'     => 'Message WhatsApp envoyé avec succès!',
+                    'message'     => 'Message WhatsApp envoyé avec succès via ' . $config->channel_name . '!',
                     'message_sid' => $result['message_sid'],
                     'push_log_id' => $pushLog->id,
                     'response_time' => $responseTime,
+                    'channel'     => $config->channel_name,
                     'contact'     => [
                         'id'       => $message->id,
                         'numero'   => $message->numero_telephone,
@@ -132,6 +217,7 @@ class TwilioController extends Controller
                     'contact_id'  => $id,
                     'error'       => $result['error'],
                     'push_log_id' => $pushLog->id,
+                    'channel'     => $config->channel_name,
                 ]);
 
                 return response()->json([
@@ -141,7 +227,6 @@ class TwilioController extends Controller
                     'type'    => 'error',
                 ], 500);
             }
-
         } catch (\Exception $e) {
             Log::error('Erreur envoi message contact: ' . $e->getMessage());
 
@@ -155,12 +240,20 @@ class TwilioController extends Controller
     }
 
     /**
-     * Envoie des messages WhatsApp à tous les contacts d'une campagne via API
+     * Envoie des messages WhatsApp à des contacts sélectionnés via API
+     * NOUVELLE VERSION avec options de sélection
      */
     public function sendCampaign(Request $request)
     {
         $request->validate([
             'campagne' => 'required|string',
+            'send_mode' => 'required|in:all,limit,range,selected',
+            'limit' => 'nullable|integer|min:1',
+            'range_start' => 'nullable|integer|min:1',
+            'range_end' => 'nullable|integer|min:1',
+            'selected_ids' => 'nullable|array',
+            'selected_ids.*' => 'integer|exists:message_whatsapps,id',
+            'filter_status' => 'nullable|in:all,not_sent,sent,failed',
         ]);
 
         try {
@@ -170,25 +263,75 @@ class TwilioController extends Controller
                 return response()->json([
                     'success' => false,
                     'title'   => 'Erreur de Configuration',
-                    'message' => 'Configuration Twilio non trouvée. Veuillez configurer Twilio d\'abord.',
+                    'message' => 'Aucune chaîne WhatsApp active. Veuillez activer une chaîne dans la configuration.',
                     'type'    => 'error',
                 ], 400);
             }
 
-            $contacts = MessageWhatsapp::where('nom_campagne', $request->campagne)->get();
+            // Construire la requête de base
+            $query = MessageWhatsapp::where('nom_campagne', $request->campagne);
+
+            // Appliquer les filtres de statut
+            if ($request->filter_status && $request->filter_status !== 'all') {
+                switch ($request->filter_status) {
+                    case 'not_sent':
+                        $query->whereNull('date_envoi');
+                        break;
+                    case 'sent':
+                        $query->whereNotNull('date_envoi')->whereNotNull('id_twilio');
+                        break;
+                    case 'failed':
+                        $query->whereNotNull('date_envoi')->whereNull('id_twilio');
+                        break;
+                }
+            }
+
+            // Appliquer le mode de sélection
+            switch ($request->send_mode) {
+                case 'limit':
+                    $contacts = $query->limit($request->limit ?? 200)->get();
+                    break;
+
+                case 'range':
+                    $rangeStart = ($request->range_start ?? 1) - 1;
+                    $rangeEnd = $request->range_end ?? 200;
+                    $limit = $rangeEnd - $rangeStart;
+                    $contacts = $query->skip($rangeStart)->take($limit)->get();
+                    break;
+
+                case 'selected':
+                    if (empty($request->selected_ids)) {
+                        return response()->json([
+                            'success' => false,
+                            'title'   => 'Aucun Contact',
+                            'message' => 'Aucun contact sélectionné.',
+                            'type'    => 'warning',
+                        ], 400);
+                    }
+                    $contacts = $query->whereIn('id', $request->selected_ids)->get();
+                    break;
+
+                case 'all':
+                default:
+                    $contacts = $query->get();
+                    break;
+            }
 
             if ($contacts->isEmpty()) {
                 return response()->json([
                     'success' => false,
                     'title'   => 'Aucun Contact',
-                    'message' => 'Aucun contact trouvé pour cette campagne.',
+                    'message' => 'Aucun contact trouvé avec les critères sélectionnés.',
                     'type'    => 'warning',
                 ], 400);
             }
 
             Log::info('Début envoi campagne', [
                 'campagne'        => $request->campagne,
+                'mode'            => $request->send_mode,
                 'nombre_contacts' => $contacts->count(),
+                'filter_status'   => $request->filter_status ?? 'all',
+                'channel'         => $config->channel_name,
             ]);
 
             $successCount = 0;
@@ -208,16 +351,15 @@ class TwilioController extends Controller
                 $result = $this->sendWhatsAppMessage($contact->numero_telephone, $config);
                 $responseTime = round(microtime(true) - $startTime, 3);
 
-                // Créer un log du push pour chaque contact avec les nouveaux champs
                 $pushLog = PushLog::create([
                     'message_sid'      => $result['message_sid'] ?? null,
                     'numero_telephone' => $contact->numero_telephone,
                     'nom_campagne'     => $contact->nom_campagne,
-                    'campaign_id'      => $contact->id, // Nouveau champ
+                    'campaign_id'      => $contact->id,
                     'status'           => $result['success'] ? 'success' : 'failed',
                     'error_message'    => $result['success'] ? null : $result['error'],
-                    'response_time'    => $result['success'] ? $responseTime : null, // Nouveau champ
-                    'message_content'  => $result['message_content'] ?? null, // Nouveau champ
+                    'response_time'    => $result['success'] ? $responseTime : null,
+                    'message_content'  => $result['message_content'] ?? null,
                     'sent_at'          => now(),
                 ]);
 
@@ -263,7 +405,7 @@ class TwilioController extends Controller
                     ]);
                 }
 
-                // Délai de 0.5s entre chaque envoi pour éviter le rate limiting
+                // Délai de 0.5s entre chaque envoi
                 usleep(500000);
             }
 
@@ -271,10 +413,12 @@ class TwilioController extends Controller
             $message = "Campagne terminée: {$successCount} messages envoyés, {$errorCount} erreurs.";
 
             Log::info('Campagne terminée', [
-                'campagne'         => $request->campagne,
-                'success'          => $successCount,
-                'errors'           => $errorCount,
+                'campagne'          => $request->campagne,
+                'mode'              => $request->send_mode,
+                'success'           => $successCount,
+                'errors'            => $errorCount,
                 'avg_response_time' => $avgResponseTime,
+                'channel'           => $config->channel_name,
             ]);
 
             return response()->json([
@@ -282,16 +426,16 @@ class TwilioController extends Controller
                 'title'      => 'Campagne Terminée',
                 'message'    => $message,
                 'statistics' => [
-                    'total'           => $contacts->count(),
-                    'success'         => $successCount,
-                    'errors'          => $errorCount,
+                    'total'             => $contacts->count(),
+                    'success'           => $successCount,
+                    'errors'            => $errorCount,
                     'avg_response_time' => $avgResponseTime,
+                    'channel'           => $config->channel_name,
                 ],
                 'results'    => $results,
                 'errors'     => $errors,
                 'type'       => 'success',
             ]);
-
         } catch (\Exception $e) {
             Log::error('Erreur envoi campagne: ' . $e->getMessage());
 
@@ -310,7 +454,6 @@ class TwilioController extends Controller
     private function sendWhatsAppMessage($toNumber, $config)
     {
         try {
-            // Nettoyer le numéro (supprimer les espaces)
             $cleanNumber = trim($toNumber);
             $cleanNumber = preg_replace('/\s+/', '', $cleanNumber);
 
@@ -329,6 +472,7 @@ class TwilioController extends Controller
                 'content_sid' => $config->content_sid,
                 'from_number' => $config->from_number,
                 'to_number'   => $cleanNumber,
+                'channel'     => $config->channel_name,
             ]);
 
             $response = Http::withOptions([
@@ -341,6 +485,7 @@ class TwilioController extends Controller
             Log::info('Twilio API Response', [
                 'status_code' => $response->status(),
                 'body'        => $response->body(),
+                'channel'     => $config->channel_name,
             ]);
 
             if ($response->successful()) {
@@ -349,12 +494,13 @@ class TwilioController extends Controller
                 Log::info('Twilio API Success', [
                     'message_sid' => $data['sid'] ?? null,
                     'status'      => $data['status'] ?? null,
+                    'channel'     => $config->channel_name,
                 ]);
 
                 return [
-                    'success'        => true,
-                    'message_sid'    => $data['sid'] ?? null,
-                    'message_content' => $this->extractMessageContent($data), // Nouveau
+                    'success'         => true,
+                    'message_sid'     => $data['sid'] ?? null,
+                    'message_content' => $this->extractMessageContent($data),
                 ];
             } else {
                 $errorData    = $response->json();
@@ -366,6 +512,7 @@ class TwilioController extends Controller
                     'error_code'    => $errorCode,
                     'error_message' => $errorMessage,
                     'full_response' => $response->body(),
+                    'channel'       => $config->channel_name,
                 ]);
 
                 return [
@@ -373,13 +520,13 @@ class TwilioController extends Controller
                     'error'   => "{$errorMessage} (Code: {$errorCode})",
                 ];
             }
-
         } catch (\Exception $e) {
             Log::error('Twilio API Exception', [
                 'exception' => $e->getMessage(),
                 'file'      => $e->getFile(),
                 'line'      => $e->getLine(),
                 'to_number' => $toNumber,
+                'channel'   => $config->channel_name ?? 'Unknown',
             ]);
 
             return [
@@ -395,7 +542,6 @@ class TwilioController extends Controller
     private function extractMessageContent($twilioData)
     {
         try {
-            // Essayer d'extraire le contenu du message de différentes manières
             if (isset($twilioData['body'])) {
                 return $twilioData['body'];
             }
@@ -406,13 +552,11 @@ class TwilioController extends Controller
                     : $twilioData['content'];
             }
 
-            // Si on utilise ContentSid, on peut stocker l'ID du template
             if (isset($twilioData['content_sid'])) {
                 return "Template: " . $twilioData['content_sid'];
             }
 
             return "Message envoyé via Twilio";
-
         } catch (\Exception $e) {
             Log::warning('Erreur extraction contenu message', [
                 'error' => $e->getMessage(),
