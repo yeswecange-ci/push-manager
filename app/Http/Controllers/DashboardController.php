@@ -42,8 +42,8 @@ class DashboardController extends Controller
         // Croissance des pushs aujourd'hui vs hier
         $todayPushsGrowth = $this->calculateTodayPushsGrowth();
 
-        // Temps de réponse moyen - CORRECTION ICI
-        $avgResponseTime = PushLog::successful()->avg('response_time') ?? 0;
+        // Temps de réponse moyen - CORRIGÉ
+        $avgResponseTime = PushLog::successful()->avg('response_time');
         $avgResponseTime = $avgResponseTime ? round($avgResponseTime, 1) : 0;
 
         // Tendance du temps de réponse
@@ -76,13 +76,13 @@ class DashboardController extends Controller
             ->limit(10)
             ->get();
 
-        // Statistiques par tranche horaire - CORRECTION ICI
+        // Statistiques par tranche horaire - CORRIGÉ
         $hourlyStats = $this->getHourlyStats();
-        $maxHourlyPushs = $hourlyStats->max('pushs') ?? 1;
+        $maxHourlyPushs = $hourlyStats->max('pushs') ?: 1; // Utiliser 1 comme minimum pour éviter division par zéro
 
-        // Activité des 7 derniers jours (pour graphique) - CORRECTION ICI
+        // Activité des 7 derniers jours (pour graphique) - CORRIGÉ
         $weeklyActivity = $this->getWeeklyActivity();
-        $maxDailyPushs = $weeklyActivity->max('pushs') ?? 1;
+        $maxDailyPushs = $weeklyActivity->max('pushs') ?: 1; // Utiliser 1 comme minimum
 
         // Alertes et notifications
         $alerts = $this->getSystemAlerts();
@@ -165,8 +165,13 @@ class DashboardController extends Controller
             ->selectRaw('COUNT(*) as total, SUM(CASE WHEN status = "success" THEN 1 ELSE 0 END) as success')
             ->first();
 
-        $currentRate = ($currentMonthRate->total ?? 0) > 0 ? (($currentMonthRate->success ?? 0) / ($currentMonthRate->total ?? 1)) * 100 : 0;
-        $lastRate = ($lastMonthRate->total ?? 0) > 0 ? (($lastMonthRate->success ?? 0) / ($lastMonthRate->total ?? 1)) * 100 : 0;
+        $currentRate = ($currentMonthRate && $currentMonthRate->total > 0)
+            ? ($currentMonthRate->success / $currentMonthRate->total) * 100
+            : 0;
+
+        $lastRate = ($lastMonthRate && $lastMonthRate->total > 0)
+            ? ($lastMonthRate->success / $lastMonthRate->total) * 100
+            : 0;
 
         if ($lastRate == 0) {
             return $currentRate > 0 ? round($currentRate, 1) : 0;
@@ -212,6 +217,7 @@ class DashboardController extends Controller
 
     /**
      * Récupère les statistiques par tranche horaire
+     * CORRIGÉ : Retourne maintenant une collection avec la bonne structure
      */
     private function getHourlyStats()
     {
@@ -224,15 +230,16 @@ class DashboardController extends Controller
             )
             ->groupBy(DB::raw('HOUR(sent_at)'))
             ->orderBy('hour')
-            ->get();
+            ->get()
+            ->keyBy('hour');
 
-        // Compléter avec les heures manquantes
+        // Compléter avec les heures manquantes (0-23)
         $hourlyStats = collect();
         for ($i = 0; $i < 24; $i++) {
-            $hourStat = $stats->firstWhere('hour', $i);
+            $hourStat = $stats->get($i);
             $hourlyStats->push([
                 'hour' => sprintf('%02dh', $i),
-                'pushs' => $hourStat ? $hourStat->pushs : 0
+                'pushs' => $hourStat ? (int)$hourStat->pushs : 0
             ]);
         }
 
@@ -241,6 +248,7 @@ class DashboardController extends Controller
 
     /**
      * Récupère l'activité des 7 derniers jours
+     * CORRIGÉ : Retourne maintenant une collection avec la bonne structure
      */
     private function getWeeklyActivity()
     {
@@ -256,6 +264,7 @@ class DashboardController extends Controller
             ->get()
             ->keyBy('date');
 
+        // Générer les 7 derniers jours
         $weeklyActivity = collect();
         for ($i = 6; $i >= 0; $i--) {
             $date = now()->subDays($i);
@@ -264,8 +273,8 @@ class DashboardController extends Controller
 
             $weeklyActivity->push([
                 'date' => $dateString,
-                'label' => $date->format('D'),
-                'pushs' => $dayStat ? $dayStat->pushs : 0
+                'label' => $date->locale('fr')->format('D'),
+                'pushs' => $dayStat ? (int)$dayStat->pushs : 0
             ]);
         }
 

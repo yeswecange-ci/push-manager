@@ -73,6 +73,15 @@
                         <p class="text-xs text-gray-500 mt-0.5">Gérez vos différentes chaînes WhatsApp</p>
                     </div>
                     <div class="flex items-center space-x-3">
+                        <!-- Bouton Ajouter une chaîne -->
+                        <button onclick="openAddModal()" class="px-3 py-2 lg:px-4 lg:py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition flex items-center">
+                            <svg class="w-4 h-4 mr-1 lg:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            <span class="hidden sm:inline">Ajouter une chaîne</span>
+                            <span class="sm:hidden">Ajouter</span>
+                        </button>
+
                         <div class="text-right mr-4 hidden sm:block">
                             <p class="text-xs text-gray-500">{{ now()->format('d/m/Y') }}</p>
                             <p class="text-sm font-medium text-gray-700">{{ now()->format('H:i') }}</p>
@@ -209,98 +218,18 @@
                             @endforeach
                         </div>
                     </div>
-                    @endif
-
-                    <!-- Formulaire d'ajout d'une nouvelle chaîne -->
-                    <div class="bg-white rounded-xl border border-gray-100 p-4 lg:p-8">
-                        <h3 class="text-lg lg:text-xl font-bold text-gray-900 mb-4 lg:mb-6">Ajouter une nouvelle chaîne</h3>
-
-                        <form method="POST" action="{{ route('twilio.saveConfig') }}">
-                            @csrf
-
-                            <div class="space-y-4 lg:space-y-6">
-                                <!-- Nom de la chaîne -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        Nom de la chaîne *
-                                    </label>
-                                    <input type="text" name="channel_name" required
-                                           value="{{ old('channel_name') }}"
-                                           placeholder="Ex: Chaîne Marketing, Chaîne Support..."
-                                           class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
-                                    <p class="text-xs text-gray-500 mt-1">
-                                        Donnez un nom unique pour identifier cette chaîne
-                                    </p>
-                                    @error('channel_name')
-                                        <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-                                <!-- Account SID -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        Account SID *
-                                    </label>
-                                    <input type="text" name="account_sid" required
-                                           value="{{ old('account_sid') }}"
-                                           placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                                           class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
-                                    <p class="text-xs text-gray-500 mt-1">
-                                        Trouvable dans votre dashboard Twilio
-                                    </p>
-                                </div>
-
-                                <!-- Auth Token -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        Auth Token *
-                                    </label>
-                                    <input type="password" name="auth_token" required
-                                           value="{{ old('auth_token') }}"
-                                           placeholder="Votre token d'authentification"
-                                           class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
-                                    <p class="text-xs text-gray-500 mt-1">
-                                        Gardez cette information secrète
-                                    </p>
-                                </div>
-
-                                <!-- Content SID -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        Content SID *
-                                    </label>
-                                    <input type="text" name="content_sid" required
-                                           value="{{ old('content_sid') }}"
-                                           placeholder="HXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                                           class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
-                                    <p class="text-xs text-gray-500 mt-1">
-                                        ID de votre template WhatsApp approuvé
-                                    </p>
-                                </div>
-
-                                <!-- From Number (Messaging Service) -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        Messaging Service SID *
-                                    </label>
-                                    <input type="text" name="from_number" required
-                                           value="{{ old('from_number') }}"
-                                           placeholder="MGxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                                           class="w-full px-3 lg:px-4 py-2 lg:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
-                                    <p class="text-xs text-gray-500 mt-1">
-                                        ID de votre Messaging Service Twilio
-                                    </p>
-                                </div>
-
-                                <div class="pt-2 lg:pt-4">
-                                    <button type="submit"
-                                            class="w-full px-4 lg:px-6 py-2.5 lg:py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 text-sm lg:text-base">
-                                        Ajouter la chaîne
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
+                    @else
+                    <div class="bg-white rounded-xl border border-gray-100 p-8 text-center">
+                        <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                        </svg>
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">Aucune chaîne configurée</h3>
+                        <p class="text-sm text-gray-600 mb-4">Commencez par ajouter votre première chaîne WhatsApp</p>
+                        <button onclick="openAddModal()" class="px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition">
+                            Ajouter une chaîne
+                        </button>
                     </div>
+                    @endif
 
                     <!-- Informations sur la chaîne active -->
                     @if($activeConfig)
@@ -353,96 +282,204 @@
         </main>
     </div>
 
-    <!-- Modal de modification -->
-<div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-hidden flex flex-col">
-        <!-- En-tête fixe -->
-        <div class="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between z-10">
-            <h3 class="text-lg sm:text-xl font-bold text-gray-900">Modifier la chaîne</h3>
-            <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 transition p-1">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-        </div>
+    <!-- Modal d'ajout d'une nouvelle chaîne -->
+    <div id="addModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-hidden flex flex-col">
+            <!-- En-tête fixe -->
+            <div class="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between z-10">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-900">Ajouter une nouvelle chaîne</h3>
+                <button onclick="closeAddModal()" class="text-gray-400 hover:text-gray-600 transition p-1">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
 
-        <!-- Contenu scrollable -->
-        <div class="flex-1 overflow-y-auto">
-            <form id="editForm" method="POST" action="" class="p-4 sm:p-6">
-                @csrf
-                @method('PUT')
+            <!-- Contenu scrollable -->
+            <div class="flex-1 overflow-y-auto">
+                <form id="addForm" method="POST" action="{{ route('twilio.saveConfig') }}" class="p-4 sm:p-6">
+                    @csrf
 
-                <div class="space-y-4">
-                    <!-- Nom de la chaîne -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Nom de la chaîne *
-                        </label>
-                        <input type="text" name="channel_name" id="edit_channel_name" required
-                               class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                    <div class="space-y-4">
+                        <!-- Nom de la chaîne -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Nom de la chaîne *
+                            </label>
+                            <input type="text" name="channel_name" required
+                                   value="{{ old('channel_name') }}"
+                                   placeholder="Ex: Chaîne Marketing, Chaîne Support..."
+                                   class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                            <p class="text-xs text-gray-500 mt-1">
+                                Donnez un nom unique pour identifier cette chaîne
+                            </p>
+                        </div>
+
+                        <!-- Account SID -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Account SID *
+                            </label>
+                            <input type="text" name="account_sid" required
+                                   value="{{ old('account_sid') }}"
+                                   placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                                   class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                            <p class="text-xs text-gray-500 mt-1">
+                                Trouvable dans votre dashboard Twilio
+                            </p>
+                        </div>
+
+                        <!-- Auth Token -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Auth Token *
+                            </label>
+                            <input type="password" name="auth_token" required
+                                   value="{{ old('auth_token') }}"
+                                   placeholder="Votre token d'authentification"
+                                   class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                            <p class="text-xs text-gray-500 mt-1">
+                                Gardez cette information secrète
+                            </p>
+                        </div>
+
+                        <!-- Content SID -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Content SID *
+                            </label>
+                            <input type="text" name="content_sid" required
+                                   value="{{ old('content_sid') }}"
+                                   placeholder="HXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                                   class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                            <p class="text-xs text-gray-500 mt-1">
+                                ID de votre template WhatsApp approuvé
+                            </p>
+                        </div>
+
+                        <!-- From Number (Messaging Service) -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Messaging Service SID *
+                            </label>
+                            <input type="text" name="from_number" required
+                                   value="{{ old('from_number') }}"
+                                   placeholder="MGxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                                   class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                            <p class="text-xs text-gray-500 mt-1">
+                                ID de votre Messaging Service Twilio
+                            </p>
+                        </div>
                     </div>
 
-                    <!-- Account SID -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Account SID *
-                        </label>
-                        <input type="text" name="account_sid" id="edit_account_sid" required
-                               placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                               class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                    <!-- Boutons fixes en bas -->
+                    <div class="sticky bottom-0 bg-white pt-4 mt-6 border-t border-gray-200 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3">
+                        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                            <button type="button" onclick="closeAddModal()"
+                                    class="flex-1 px-4 py-2.5 sm:py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition text-sm sm:text-base">
+                                Annuler
+                            </button>
+                            <button type="submit"
+                                    class="flex-1 px-4 py-2.5 sm:py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition text-sm sm:text-base">
+                                Ajouter la chaîne
+                            </button>
+                        </div>
                     </div>
-
-                    <!-- Auth Token -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Auth Token
-                        </label>
-                        <input type="password" name="auth_token" id="edit_auth_token"
-                               placeholder="Laissez vide pour ne pas modifier"
-                               class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
-                        <p class="text-xs text-gray-500 mt-1">
-                            Laissez vide pour conserver le token actuel
-                        </p>
-                    </div>
-
-                    <!-- Content SID -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Content SID *
-                        </label>
-                        <input type="text" name="content_sid" id="edit_content_sid" required
-                               placeholder="HXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                               class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
-                    </div>
-
-                    <!-- From Number (Messaging Service) -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Messaging Service SID *
-                        </label>
-                        <input type="text" name="from_number" id="edit_from_number" required
-                               placeholder="MGxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                               class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
-                    </div>
-                </div>
-
-                <!-- Boutons fixes en bas -->
-                <div class="sticky bottom-0 bg-white pt-4 mt-6 border-t border-gray-200 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3">
-                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-                        <button type="button" onclick="closeEditModal()"
-                                class="flex-1 px-4 py-2.5 sm:py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition text-sm sm:text-base">
-                            Annuler
-                        </button>
-                        <button type="submit"
-                                class="flex-1 px-4 py-2.5 sm:py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition text-sm sm:text-base">
-                            Mettre à jour
-                        </button>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
-</div>
+
+    <!-- Modal de modification -->
+    <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-hidden flex flex-col">
+            <!-- En-tête fixe -->
+            <div class="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between z-10">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-900">Modifier la chaîne</h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 transition p-1">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Contenu scrollable -->
+            <div class="flex-1 overflow-y-auto">
+                <form id="editForm" method="POST" action="" class="p-4 sm:p-6">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="space-y-4">
+                        <!-- Nom de la chaîne -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Nom de la chaîne *
+                            </label>
+                            <input type="text" name="channel_name" id="edit_channel_name" required
+                                   class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                        </div>
+
+                        <!-- Account SID -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Account SID *
+                            </label>
+                            <input type="text" name="account_sid" id="edit_account_sid" required
+                                   placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                                   class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                        </div>
+
+                        <!-- Auth Token -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Auth Token
+                            </label>
+                            <input type="password" name="auth_token" id="edit_auth_token"
+                                   placeholder="Laissez vide pour ne pas modifier"
+                                   class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                            <p class="text-xs text-gray-500 mt-1">
+                                Laissez vide pour conserver le token actuel
+                            </p>
+                        </div>
+
+                        <!-- Content SID -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Content SID *
+                            </label>
+                            <input type="text" name="content_sid" id="edit_content_sid" required
+                                   placeholder="HXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                                   class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                        </div>
+
+                        <!-- From Number (Messaging Service) -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Messaging Service SID *
+                            </label>
+                            <input type="text" name="from_number" id="edit_from_number" required
+                                   placeholder="MGxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                                   class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                        </div>
+                    </div>
+
+                    <!-- Boutons fixes en bas -->
+                    <div class="sticky bottom-0 bg-white pt-4 mt-6 border-t border-gray-200 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3">
+                        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                            <button type="button" onclick="closeEditModal()"
+                                    class="flex-1 px-4 py-2.5 sm:py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition text-sm sm:text-base">
+                                Annuler
+                            </button>
+                            <button type="submit"
+                                    class="flex-1 px-4 py-2.5 sm:py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition text-sm sm:text-base">
+                                Mettre à jour
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Mobile menu functionality
@@ -469,9 +506,22 @@
             });
         });
 
+        // Modal d'ajout
+        function openAddModal() {
+            document.getElementById('addModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            document.getElementById('addForm').reset();
+        }
+
         // Modal de modification
         function openEditModal(id, channelName, accountSid, contentSid, fromNumber) {
             document.getElementById('editModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
             document.getElementById('editForm').action = `/twilio/config/${id}`;
             document.getElementById('edit_channel_name').value = channelName;
             document.getElementById('edit_account_sid').value = accountSid;
@@ -479,26 +529,31 @@
             document.getElementById('edit_from_number').value = fromNumber;
             // Vider le champ auth_token
             document.getElementById('edit_auth_token').value = '';
-            document.getElementById('edit_auth_token').removeAttribute('required');
         }
 
         function closeEditModal() {
             document.getElementById('editModal').classList.add('hidden');
-            // Réinitialiser le formulaire
+            document.body.style.overflow = 'auto';
             document.getElementById('editForm').reset();
-            document.getElementById('edit_auth_token').setAttribute('required', 'required');
         }
 
-        // Fermer le modal en cliquant en dehors
+        // Fermer les modals en cliquant en dehors
+        document.getElementById('addModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAddModal();
+            }
+        });
+
         document.getElementById('editModal')?.addEventListener('click', function(e) {
             if (e.target === this) {
                 closeEditModal();
             }
         });
 
-        // Fermer le modal avec la touche Échap
+        // Fermer les modals avec la touche Échap
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
+                closeAddModal();
                 closeEditModal();
             }
         });

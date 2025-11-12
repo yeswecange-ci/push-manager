@@ -115,69 +115,6 @@
                     </div>
                 @endif
 
-                <!-- Alertes et Notifications -->
-                {{-- @if($alerts->count() > 0)
-                <div class="bg-white p-4 lg:p-6 rounded-xl border border-gray-100 mb-6 lg:mb-8">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-base lg:text-lg font-bold text-gray-900 flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-                            </svg>
-                            Alertes et Notifications
-                        </h3>
-                        <button onclick="closeAllAlerts()" class="text-sm text-gray-500 hover:text-gray-700 flex items-center">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                            Tout fermer
-                        </button>
-                    </div>
-                    <div class="space-y-3" id="alerts-container">
-                        @foreach($alerts as $index => $alert)
-                        <div class="flex items-start p-3 rounded-lg transition-all duration-300 alert-item
-                            @if($alert['type'] == 'warning') bg-yellow-50 border border-yellow-200
-                            @elseif($alert['type'] == 'red') bg-red-50 border border-red-200
-                            @else bg-blue-50 border border-blue-200 @endif">
-                            <div class="w-6 h-6 rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0
-                                @if($alert['type'] == 'warning') bg-yellow-500
-                                @elseif($alert['type'] == 'red') bg-red-500
-                                @else bg-blue-500 @endif">
-                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    @if($alert['type'] == 'warning')
-                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                    @else
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                                    @endif
-                                </svg>
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="text-sm font-semibold
-                                    @if($alert['type'] == 'warning') text-yellow-800
-                                    @elseif($alert['type'] == 'red') text-red-800
-                                    @else text-blue-800 @endif">
-                                    {{ $alert['title'] }}
-                                </h4>
-                                <p class="text-xs mt-1
-                                    @if($alert['type'] == 'warning') text-yellow-700
-                                    @elseif($alert['type'] == 'red') text-red-700
-                                    @else text-blue-700 @endif">
-                                    {{ $alert['message'] }}
-                                </p>
-                            </div>
-                            <button onclick="closeAlert(this)" class="ml-2
-                                @if($alert['type'] == 'warning') text-yellow-600 hover:text-yellow-800
-                                @elseif($alert['type'] == 'red') text-red-600 hover:text-red-800
-                                @else text-blue-600 hover:text-blue-800 @endif">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                            </button>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-                @endif --}}
-
                 <!-- Statistics Cards - LIGNE 1 -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
                     <div class="bg-white p-4 lg:p-6 rounded-xl border border-gray-100 hover:shadow-lg transition-shadow">
@@ -321,9 +258,9 @@
                         @if(isset($responseTimeTrend))
                         <div class="flex items-center mt-2 text-xs {{ $responseTimeTrend < 0 ? 'text-green-600' : 'text-red-600' }}">
                             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $responseTimeTrend < 0 ? 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' : 'M13 17h8m0 0V9m0 8l-8-8-4 4-6-6' }}"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $responseTimeTrend < 0 ? 'M13 17h8m0 0V9m0 8l-8-8-4 4-6-6' : 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' }}"/>
                             </svg>
-                            <span>{{ $responseTimeTrend < 0 ? '-' : '+' }}{{ abs($responseTimeTrend) }}% vs hier</span>
+                            <span>{{ $responseTimeTrend < 0 ? '' : '+' }}{{ abs($responseTimeTrend) }}% vs hier</span>
                         </div>
                         @endif
                     </div>
@@ -349,7 +286,7 @@
                 </div>
 
                 <!-- Activité par tranche horaire -->
-                @if(isset($hourlyStats) && count($hourlyStats) > 0 && ($maxHourlyPushs ?? 0) > 0)
+                @if(isset($hourlyStats) && $hourlyStats->count() > 0)
                 <div class="bg-white p-4 lg:p-6 rounded-xl border border-gray-100 mb-6 lg:mb-8">
                     <h3 class="text-base lg:text-lg font-bold text-gray-900 mb-4 flex items-center">
                         <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -361,7 +298,7 @@
                         @foreach($hourlyStats as $stat)
                         <div class="text-center">
                             <div class="relative h-24 bg-gray-100 rounded-lg mb-2 overflow-hidden">
-                                <div class="absolute bottom-0 w-full bg-gradient-to-t from-indigo-500 to-indigo-400 transition-all" style="height: {{ min(($stat['pushs'] / ($maxHourlyPushs ?? 1)) * 100, 100) }}%"></div>
+                                <div class="absolute bottom-0 w-full bg-gradient-to-t from-indigo-500 to-indigo-400 rounded-t-lg animate-bar" style="height: {{ $maxHourlyPushs > 0 ? min(($stat['pushs'] / $maxHourlyPushs) * 100, 100) : 0 }}%"></div>
                             </div>
                             <p class="text-xs font-semibold text-gray-700">{{ $stat['hour'] }}</p>
                             <p class="text-sm text-gray-500">{{ number_format($stat['pushs']) }} pushs</p>
@@ -372,7 +309,7 @@
                 @endif
 
                 <!-- Graphique d'activité récente -->
-                @if(isset($weeklyActivity) && count($weeklyActivity) > 0 && ($maxDailyPushs ?? 0) > 0)
+                @if(isset($weeklyActivity) && $weeklyActivity->count() > 0)
                 <div class="bg-white p-4 lg:p-6 rounded-xl border border-gray-100 mb-6 lg:mb-8">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                         <h3 class="text-base lg:text-lg font-bold text-gray-900 flex items-center">
@@ -397,9 +334,13 @@
                     <div class="h-64 flex items-end space-x-2 justify-between pt-4">
                         @foreach($weeklyActivity as $day)
                         <div class="flex flex-col items-center flex-1">
-                            <div class="relative w-full flex justify-center mb-2">
-                                <div class="w-8 bg-gradient-to-t from-indigo-500 to-indigo-300 rounded-t-lg transition-all hover:from-indigo-600 hover:to-indigo-400"
-                                     style="height: {{ (($day['pushs'] ?? 0) / ($maxDailyPushs ?? 1)) * 80 }}%"
+                            <div class="relative w-full flex justify-center mb-2" style="height: 200px;">
+                                @php
+                                    $heightPercent = $maxDailyPushs > 0 ? (($day['pushs'] ?? 0) / $maxDailyPushs) * 100 : 0;
+                                    $heightPx = ($heightPercent / 100) * 200;
+                                @endphp
+                                <div class="w-12 bg-gradient-to-t from-indigo-500 to-indigo-300 rounded-t-lg transition-all hover:from-indigo-600 hover:to-indigo-400 animate-bar"
+                                     style="height: {{ $heightPx }}px"
                                      title="{{ $day['pushs'] ?? 0 }} pushs">
                                 </div>
                             </div>
@@ -463,12 +404,10 @@
                         </h3>
 
                         <div class="flex flex-wrap items-center gap-2">
-                            <!-- Compteur de résultats -->
                             <span class="text-sm text-gray-600" id="result-count">
                                 {{ $recentPushs->count() }} résultat{{ $recentPushs->count() > 1 ? 's' : '' }}
                             </span>
 
-                            <!-- Bouton filtres mobile -->
                             <button
                                 onclick="toggleFilters()"
                                 class="md:hidden px-3 py-2 bg-gray-100 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-200 transition flex items-center"
@@ -479,7 +418,6 @@
                                 Filtres
                             </button>
 
-                            <!-- Bouton export -->
                             <button
                                 onclick="exportTableData()"
                                 class="px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition flex items-center"
@@ -492,10 +430,8 @@
                         </div>
                     </div>
 
-                    <!-- Barre de recherche et filtres -->
                     <div id="filter-section" class="hidden md:block mb-4">
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                            <!-- Recherche -->
                             <div class="md:col-span-2 relative">
                                 <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -509,7 +445,6 @@
                                 />
                             </div>
 
-                            <!-- Filtre par status -->
                             <select
                                 id="status-filter"
                                 class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
@@ -520,7 +455,6 @@
                                 <option value="failed">Échoués uniquement</option>
                             </select>
 
-                            <!-- Filtre par date -->
                             <select
                                 id="date-filter"
                                 class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
@@ -533,7 +467,6 @@
                         </div>
                     </div>
 
-                    <!-- Tableau -->
                     <div class="overflow-x-auto">
                         <table class="w-full min-w-[800px]" id="push-table">
                             <thead class="bg-gray-50">
@@ -618,7 +551,6 @@
                 <div class="bg-white p-4 lg:p-6 rounded-xl border border-gray-100">
                     <h3 class="text-base lg:text-lg font-bold text-gray-900 mb-4">Actions Rapides</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
-                        <!-- Gestion des Contacts -->
                         <a href="{{ route('contacts.index') }}" class="p-4 border-2 border-dashed border-gray-300 rounded-xl hover:border-green-300 hover:bg-green-50 transition group text-center">
                             <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:bg-green-200 transition">
                                 <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -628,7 +560,6 @@
                             <span class="text-sm font-medium text-gray-700 group-hover:text-green-700">Gérer Contacts</span>
                         </a>
 
-                        <!-- Configuration Twilio -->
                         <a href="{{ route('twilio.config') }}" class="p-4 border-2 border-dashed border-gray-300 rounded-xl hover:border-purple-300 hover:bg-purple-50 transition group text-center">
                             <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:bg-purple-200 transition">
                                 <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -639,7 +570,6 @@
                             <span class="text-sm font-medium text-gray-700 group-hover:text-purple-700">Configuration</span>
                         </a>
 
-                        <!-- Rapports -->
                         <button onclick="generateReport()" class="p-4 border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-300 hover:bg-blue-50 transition group text-center cursor-pointer">
                             <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:bg-blue-200 transition">
                                 <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -769,49 +699,14 @@
             document.body.removeChild(link);
         }
 
-        // Gestion des alertes
-        function closeAlert(button) {
-            const alertItem = button.closest('.alert-item');
-            alertItem.style.opacity = '0';
-            alertItem.style.transform = 'translateX(-100%)';
-            setTimeout(() => {
-                alertItem.remove();
-                // Si plus d'alertes, masquer la section
-                if (document.querySelectorAll('.alert-item').length === 0) {
-                    document.querySelector('#alerts-container').closest('.bg-white').remove();
-                }
-            }, 300);
-        }
-
-        function closeAllAlerts() {
-            const alerts = document.querySelectorAll('.alert-item');
-            alerts.forEach((alert, index) => {
-                setTimeout(() => {
-                    alert.style.opacity = '0';
-                    alert.style.transform = 'translateX(-100%)';
-                    setTimeout(() => alert.remove(), 300);
-                }, index * 100);
-            });
-
-            setTimeout(() => {
-                const alertsContainer = document.querySelector('#alerts-container');
-                if (alertsContainer) {
-                    alertsContainer.closest('.bg-white').remove();
-                }
-            }, (alerts.length * 100) + 300);
-        }
-
         // Génération de rapport
         function generateReport() {
-            // Afficher un indicateur de chargement
             const button = event.target.closest('button');
             const originalText = button.querySelector('span').textContent;
             button.querySelector('span').textContent = 'Génération...';
             button.disabled = true;
 
-            // Simuler la génération du rapport
             setTimeout(() => {
-                // Créer les données du rapport
                 const reportData = {
                     date: new Date().toLocaleDateString('fr-FR'),
                     totalContacts: {{ $total }},
@@ -821,7 +716,6 @@
                     avgResponseTime: {{ $avgResponseTime ?? 0 }}
                 };
 
-                // Créer le contenu du rapport
                 const reportContent = `RAPPORT DE PERFORMANCE - ${reportData.date}
 
 STATISTIQUES GLOBALES:
@@ -843,7 +737,6 @@ DERNIÈRES ACTIVITÉS:
 
 --- Rapport généré automatiquement ---`;
 
-                // Créer et télécharger le fichier
                 const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8' });
                 const link = document.createElement('a');
                 const url = URL.createObjectURL(blob);
@@ -856,11 +749,9 @@ DERNIÈRES ACTIVITÉS:
                 link.click();
                 document.body.removeChild(link);
 
-                // Restaurer le bouton
                 button.querySelector('span').textContent = originalText;
                 button.disabled = false;
 
-                // Afficher une notification de succès
                 showNotification('Rapport généré avec succès!', 'success');
             }, 1500);
         }
@@ -884,12 +775,10 @@ DERNIÈRES ACTIVITÉS:
 
             document.body.appendChild(notification);
 
-            // Animation d'entrée
             setTimeout(() => {
                 notification.classList.remove('translate-x-full');
             }, 100);
 
-            // Auto-fermeture après 5 secondes
             setTimeout(() => {
                 notification.classList.add('translate-x-full');
                 setTimeout(() => {
@@ -897,25 +786,21 @@ DERNIÈRES ACTIVITÉS:
                 }, 300);
             }, 5000);
         }
-
-        // Animation des barres de graphique
-        document.addEventListener('DOMContentLoaded', function() {
-            const bars = document.querySelectorAll('.bg-gradient-to-t');
-            bars.forEach((bar, index) => {
-                setTimeout(() => {
-                    bar.style.transform = 'scaleY(1)';
-                    bar.style.opacity = '1';
-                }, index * 100);
-            });
-        });
     </script>
 
     <style>
-        .bg-gradient-to-t {
-            transform: scaleY(0);
-            opacity: 0;
-            transform-origin: bottom;
-            transition: all 0.5s ease-in-out;
+        .animate-bar {
+            animation: growBar 0.8s ease-out forwards;
+        }
+
+        @keyframes growBar {
+            from {
+                height: 0 !important;
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
 
         .animate-fade-in {
